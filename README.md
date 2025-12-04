@@ -97,8 +97,8 @@ real-time-stock-mcp-service/
     ├── stock_data_source.py     # 东方财富网数据源实现
     ├── utils.py                    # 通用工具函数
     ├── formatting/
-    │   └── markdown_formatter.py   # Markdown格式化工具（废弃）
-    └── tools/  # 工具模块
+    │   └── markdown_formatter.py   # Markdown格式化工具
+    └── tools/  # MCP工具模块
 
 ```
 

@@ -6,6 +6,7 @@ src/tools/search.py
 import logging
 from mcp.server.fastmcp import FastMCP
 from ..data_source_interface import FinancialDataInterface
+from ..formatting.markdown_formatter import format_list_to_markdown_table
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +19,69 @@ def register_search_tools(app: FastMCP, data_source: FinancialDataInterface):
         app: FastMCP应用实例
         data_source: 数据源实例
     """
+
+    @app.tool()
+    def get_last_trading_day() -> str:
+        """
+        获取最近交易日信息
+
+        获取最新的交易日历信息，包括最近的交易日和休市日。
+
+        Returns:
+            最近交易日信息的Markdown表格
+
+        Examples:
+            - get_last_trading_day()
+        """
+        try:
+            logger.info("获取最近交易日信息")
+
+            # 从数据源获取最近交易日信息
+            trading_data = data_source.get_last_trading_day()
+
+            if not trading_data:
+                return "未能获取到交易日信息"
+
+            # 解包并格式化数据
+            raw_data = trading_data.get("data", [])
+            now_date = trading_data.get("nowdate", "")
+
+            if not raw_data:
+                return "交易日数据为空"
+
+            # 星期映射表
+            weekday_mapping = {
+                '1': '星期日',
+                '2': '星期一',
+                '3': '星期二',
+                '4': '星期三',
+                '5': '星期四',
+                '6': '星期五',
+                '7': '星期六'
+            }
+
+            # 格式化数据
+            formatted_data = []
+            for item in raw_data:
+                # 处理交易状态显示
+                trade_status = '交易日' if item.get('jybz', '0') == '1' else '休市'
+
+                # 获取星期几
+                weekday = weekday_mapping.get(str(item.get('zrxh', '')), f"星期{item.get('zrxh', '')}")
+
+                formatted_data.append({
+                    '日期': item.get('jyrq', ''),
+                    '星期': weekday,
+                    '状态': trade_status,
+                })
+
+            table = format_list_to_markdown_table(formatted_data)
+            note = f"\n\n📅 当前日期: {now_date}"
+            return f"## 最近交易日信息\n\n{table}{note}"
+
+        except Exception as e:
+            logger.error(f"获取最近交易日信息时出错: {e}")
+            return f"获取最近交易日信息失败: {str(e)}"
 
     @app.tool()
     def get_stock_search(keyword: str) -> str:
@@ -72,100 +136,11 @@ def register_search_tools(app: FastMCP, data_source: FinancialDataInterface):
                     '标记': stock.get('flag', ''),
                     '扩展小类类型': stock.get('extSmallType', ''),
                 })
-
-            # 构建Markdown表格
-            columns = [
-                '股票代码', '股票名称', '市场类型', '拼音', '内部代码', '市场编号',
-                '证券类型', '小类类型', '状态', '标记', '扩展小类类型'
-            ]
-
-            header = "| " + " | ".join(columns) + " |"
-            separator = "| " + " | ".join(["---"] * len(columns)) + " |"
-
-            rows = []
-            for item in formatted_data:
-                row_data = [str(item.get(col, "")) for col in columns]
-                row = "| " + " | ".join(row_data) + " |"
-                rows.append(row)
-
-            table = "\n".join([header, separator] + rows)
+            
+            table = format_list_to_markdown_table(formatted_data)
             note = f"\n\n💡 找到 {len(formatted_data)} 只与 '{keyword}' 相关的股票"
             return f"## 股票搜索结果\n\n{table}{note}"
 
         except Exception as e:
             logger.error(f"搜索股票时出错: {e}")
             return f"搜索股票失败: {str(e)}"
-
-    @app.tool()
-    def get_last_trading_day() -> str:
-        """
-        获取最近交易日信息
-
-        获取最新的交易日历信息，包括最近的交易日和休市日。
-
-        Returns:
-            最近交易日信息的Markdown表格
-
-        Examples:
-            - get_last_trading_day()
-        """
-        try:
-            logger.info("获取最近交易日信息")
-
-            # 从数据源获取最近交易日信息
-            trading_data = data_source.get_last_trading_day()
-
-            if not trading_data:
-                return "未能获取到交易日信息"
-
-            # 解包并格式化数据
-            raw_data = trading_data.get("data", [])
-            now_date = trading_data.get("nowdate", "")
-            
-            if not raw_data:
-                return "交易日数据为空"
-
-            # 星期映射表
-            weekday_mapping = {
-                '1': '星期日',
-                '2': '星期一',
-                '3': '星期二',
-                '4': '星期三',
-                '5': '星期四',
-                '6': '星期五',
-                '7': '星期六'
-            }
-
-            # 格式化数据
-            formatted_data = []
-            for item in raw_data:
-                # 处理交易状态显示
-                trade_status = '交易日' if item.get('jybz', '0') == '1' else '休市'
-                
-                # 获取星期几
-                weekday = weekday_mapping.get(str(item.get('zrxh', '')), f"星期{item.get('zrxh', '')}")
-                
-                formatted_data.append({
-                    '星期': weekday,
-                    '日期': item.get('jyrq', ''),
-                    '状态': trade_status,
-                })
-
-            # 构建Markdown表格
-            columns = ['日期', '星期', '状态']
-            header = "| " + " | ".join(columns) + " |"
-            separator = "| " + " | ".join(["---"] * len(columns)) + " |"
-
-            rows = []
-            for item in formatted_data:
-                row_data = [str(item.get(col, "")) for col in columns]
-                row = "| " + " | ".join(row_data) + " |"
-                rows.append(row)
-
-            table = "\n".join([header, separator] + rows)
-            note = f"\n\n📅 当前日期: {now_date}"
-            return f"## 最近交易日信息\n\n{table}{note}"
-
-        except Exception as e:
-            logger.error(f"获取最近交易日信息时出错: {e}")
-            return f"获取最近交易日信息失败: {str(e)}"

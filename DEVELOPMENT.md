@@ -17,7 +17,10 @@
          │
          ├─→ stock_data_source.py   ← 具体实现
          │
-         └─→ tools/                     ← 各个工具模块
+         ├── formatting/
+         │   └── markdown_formatter.py   # Markdown格式化工具
+         │
+         └─→ tools/                     ← 各个MCP工具模块
               ├─ search.py
               ├─ kline_data.py
               └─ ...
@@ -368,7 +371,6 @@ def _make_request_with_retry(self, endpoint, params, max_retries=3):
 - **Python**: 3.12+
 - **MCP SDK**: FastMCP
 - **HTTP客户端**: requests
-- **数据处理**: pandas (可选)
 - **包管理**: uv
 
 ## 参考资源

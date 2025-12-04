@@ -18,9 +18,8 @@ from src.stock_data_source import WebCrawlerDataSource
 from src.utils import setup_logging
 
 # 导入各模块工具的注册函数
-
-from src.tools.kline_data import register_kline_tools as register_crawler_kline_tools
 from src.tools.search import register_search_tools as register_crawler_search_tools
+from src.tools.kline_data import register_kline_tools as register_crawler_kline_tools
 
 
 # --- 日志配置 ---

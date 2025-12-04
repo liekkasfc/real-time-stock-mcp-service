@@ -8,6 +8,7 @@ from typing import List, Optional, Dict
 from mcp.server.fastmcp import FastMCP
 from ..data_source_interface import FinancialDataInterface
 from ..utils import format_number, format_percentage
+from ..formatting.markdown_formatter import format_list_to_markdown_table
 
 logger = logging.getLogger(__name__)
 
@@ -306,18 +307,7 @@ def register_kline_tools(app: FastMCP, data_source: FinancialDataInterface):
                     '换手率': f"{turnover_rate:.2f}%"
                 })
 
-            # 构建Markdown表格
-            columns = ['日期', 'K线状态', '开盘', '收盘', '最高', '最低', '涨跌幅', '成交量', '成交额', '振幅', '涨跌额', '换手率']
-            header = "| " + " | ".join(columns) + " |"
-            separator = "| " + " | ".join(["---"] * len(columns)) + " |"
-
-            rows = []
-            for item in formatted_data:
-                row_data = [str(item.get(col, "")) for col in columns]
-                row = "| " + " | ".join(row_data) + " |"
-                rows.append(row)
-
-            table = "\n".join([header, separator] + rows)
+            table = format_list_to_markdown_table(formatted_data)
             note = f"\n\n💡 显示 {len(formatted_data)} 条K线数据，频率: {frequency}"
             return f"## {stock_code} K线数据\n\n{table}{note}"
 
@@ -398,18 +388,7 @@ def register_kline_tools(app: FastMCP, data_source: FinancialDataInterface):
                     'KDJ_J': format_number(kdj_data['j'][i])
                 })
 
-            # 构建Markdown表格
-            columns = ['日期', 'MA5', 'MA10', 'MA20', 'MA60', 'DIF', 'DEA', 'MACD柱', 'RSI6', 'RSI12', 'RSI24', 'KDJ_K', 'KDJ_D', 'KDJ_J']
-            header = "| " + " | ".join(columns) + " |"
-            separator = "| " + " | ".join(["---"] * len(columns)) + " |"
-
-            rows = []
-            for item in formatted_data:
-                row_data = [str(item.get(col, "")) for col in columns]
-                row = "| " + " | ".join(row_data) + " |"
-                rows.append(row)
-
-            table = "\n".join([header, separator] + rows)
+            table = format_list_to_markdown_table(formatted_data)
             note = f"\n\n💡 显示 {len(formatted_data)} 条技术指标数据，频率: {frequency}"
             return f"## {stock_code} 技术指标数据\n\n{table}{note}"
 
