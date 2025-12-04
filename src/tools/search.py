@@ -125,20 +125,34 @@ def register_search_tools(app: FastMCP, data_source: FinancialDataInterface):
             if not raw_data:
                 return "交易日数据为空"
 
+            # 星期映射表
+            weekday_mapping = {
+                '1': '星期日',
+                '2': '星期一',
+                '3': '星期二',
+                '4': '星期三',
+                '5': '星期四',
+                '6': '星期五',
+                '7': '星期六'
+            }
+
             # 格式化数据
             formatted_data = []
             for item in raw_data:
                 # 处理交易状态显示
                 trade_status = '交易日' if item.get('jybz', '0') == '1' else '休市'
                 
+                # 获取星期几
+                weekday = weekday_mapping.get(str(item.get('zrxh', '')), f"星期{item.get('zrxh', '')}")
+                
                 formatted_data.append({
-                    '交易日序号': item.get('zrxh', ''),
+                    '星期': weekday,
                     '日期': item.get('jyrq', ''),
                     '状态': trade_status,
                 })
 
             # 构建Markdown表格
-            columns = ['交易日序号', '日期', '状态']
+            columns = ['日期', '星期', '状态']
             header = "| " + " | ".join(columns) + " |"
             separator = "| " + " | ".join(["---"] * len(columns)) + " |"
 
