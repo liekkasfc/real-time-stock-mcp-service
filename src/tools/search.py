@@ -1,12 +1,11 @@
 """
 股票搜索工具
-
+src/tools/search.py
 提供股票搜索和查询功能
 """
 import logging
 from mcp.server.fastmcp import FastMCP
-from src.data_source_interface import FinancialDataInterface
-from src.utils import format_number
+from ..data_source_interface import FinancialDataInterface
 
 logger = logging.getLogger(__name__)
 
@@ -21,9 +20,7 @@ def register_search_tools(app: FastMCP, data_source: FinancialDataInterface):
     """
 
     @app.tool()
-    def get_stock_search(
-        keyword: str
-    ) -> str:
+    def get_stock_search(keyword: str) -> str:
         """
         搜索股票信息
 
@@ -42,6 +39,8 @@ def register_search_tools(app: FastMCP, data_source: FinancialDataInterface):
         """
         try:
             logger.info(f"搜索股票: 关键字 '{keyword}'")
+
+            # 从数据源获取原始搜索结果
             search_results = data_source.get_stock_search(keyword)
 
             if not search_results:
@@ -50,6 +49,16 @@ def register_search_tools(app: FastMCP, data_source: FinancialDataInterface):
             # 格式化数据
             formatted_data = []
             for stock in search_results:
+                # 处理状态显示
+                status = '正常' if stock.get('status', 0) == 10 else '异常'
+
+                # 处理证券类型（可能是列表）
+                security_types = stock.get('securityType', [])
+                if isinstance(security_types, list):
+                    security_type_str = ', '.join(map(str, security_types))
+                else:
+                    security_type_str = str(security_types)
+
                 formatted_data.append({
                     '股票代码': stock.get('code', ''),
                     '股票名称': stock.get('shortName', ''),
@@ -57,31 +66,29 @@ def register_search_tools(app: FastMCP, data_source: FinancialDataInterface):
                     '拼音': stock.get('pinyin', ''),
                     '内部代码': stock.get('innerCode', ''),
                     '市场编号': stock.get('market', ''),
-                    '证券类型': ', '.join(map(str, stock.get('securityType', []))),
+                    '证券类型': security_type_str,
                     '小类类型': stock.get('smallType', ''),
-                    '状态': '正常' if stock.get('status', 0) == 10 else '异常',
+                    '状态': status,
                     '标记': stock.get('flag', ''),
                     '扩展小类类型': stock.get('extSmallType', ''),
                 })
 
-            # 手动构建Markdown表格
-            columns = ['股票代码', '股票名称', '市场类型', '拼音', '内部代码', '市场编号',
-                       '证券类型', '小类类型', '状态', '标记', '扩展小类类型']
+            # 构建Markdown表格
+            columns = [
+                '股票代码', '股票名称', '市场类型', '拼音', '内部代码', '市场编号',
+                '证券类型', '小类类型', '状态', '标记', '扩展小类类型'
+            ]
 
-            # 创建表头
             header = "| " + " | ".join(columns) + " |"
             separator = "| " + " | ".join(["---"] * len(columns)) + " |"
 
-            # 创建数据行
             rows = []
             for item in formatted_data:
                 row_data = [str(item.get(col, "")) for col in columns]
                 row = "| " + " | ".join(row_data) + " |"
                 rows.append(row)
 
-            # 组合表格
             table = "\n".join([header, separator] + rows)
-
             note = f"\n\n💡 找到 {len(formatted_data)} 只与 '{keyword}' 相关的股票"
             return f"## 股票搜索结果\n\n{table}{note}"
 
