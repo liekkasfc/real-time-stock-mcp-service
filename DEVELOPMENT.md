@@ -17,10 +17,11 @@
          │
          ├─→ stock_data_source.py   ← 具体实现
          │
-         ├── formatting/
+         ├── utils/
+         │   ├── utils.py    # 工具模块通用工具
          │   └── markdown_formatter.py   # Markdown格式化工具
          │
-         └─→ tools/                     ← 各个MCP工具模块
+         └─→ mcp_tools/                     ← 各个MCP工具模块
               ├─ search.py
               ├─ kline_data.py
               └─ ...
@@ -59,7 +60,7 @@ def get_new_feature_data(self, param: str) -> Dict[str, Any]:
 
 #### 步骤 2: 在具体实现中实现方法
 
-编辑 `src/stockapi_data_source.py`:
+编辑 `src/stock_data_source.py`:
 
 ```python
 def get_new_feature_data(self, param: str) -> Dict[str, Any]:
@@ -72,7 +73,7 @@ def get_new_feature_data(self, param: str) -> Dict[str, Any]:
 
 #### 步骤 1: 创建工具模块文件
 
-创建 `src/tools/my_new_tool.py`:
+创建 `src/mcp_tools/my_new_tool.py`:
 
 ```python
 """
@@ -83,12 +84,12 @@ def get_new_feature_data(self, param: str) -> Dict[str, Any]:
 
 import logging
 from mcp.server.fastmcp import FastMCP
-from src.data_source_interface import StockDataSource
+from src.data_source_interface import FinancialDataInterface
 
 logger = logging.getLogger(__name__)
 
 
-def register_my_new_tools(app: FastMCP, data_source: StockDataSource):
+def register_my_new_tools(app: FastMCP, data_source: FinancialDataInterface):
     """
     注册我的新工具
     
@@ -140,7 +141,7 @@ def register_my_new_tools(app: FastMCP, data_source: StockDataSource):
 
 ```python
 # 1. 导入注册函数
-from src.tools.my_new_tool import register_my_new_tools
+from src.mcp_tools.my_new_tool import register_my_new_tools
 
 # 2. 在注册区域添加
 register_my_new_tools(app, active_data_source)
@@ -155,9 +156,9 @@ register_my_new_tools(app, active_data_source)
 创建 `src/another_data_source.py`:
 
 ```python
-from src.data_source_interface import StockDataSource
+from src.data_source_interface import FinancialDataInterface
 
-class AnotherDataSource(StockDataSource):
+class AnotherDataSource(FinancialDataInterface):
     """另一个数据源实现"""
     
     def __init__(self):
@@ -187,7 +188,7 @@ class AnotherDataSource(StockDataSource):
 from src.another_data_source import AnotherDataSource
 
 # 更改实例化
-active_data_source: StockDataSource = AnotherDataSource()
+active_data_source: FinancialDataInterface = AnotherDataSource()
 ```
 
 ## 代码规范
@@ -262,20 +263,21 @@ def my_tool(param: str) -> str:
 
 ```python
 import pytest
-from src.tools.my_new_tool import register_my_new_tools
+from src.mcp_tools.my_new_tool import register_my_new_tools
 from unittest.mock import Mock
+
 
 def test_my_new_tool():
     # 创建模拟的数据源
     mock_data_source = Mock()
     mock_data_source.get_new_feature_data.return_value = {"key": "value"}
-    
+
     # 创建模拟的app
     mock_app = Mock()
-    
+
     # 注册工具
     register_my_new_tools(mock_app, mock_data_source)
-    
+
     # 验证注册成功
     assert mock_app.tool.called
 ```
@@ -305,10 +307,10 @@ setup_logging(level=logging.DEBUG)
 创建临时测试脚本:
 
 ```python
-from src.stockapi_data_source import StockAPIDataSource
+from src.stock_data_source import WebCrawlerDataSource
 
 # 测试某个功能
-data_source = StockAPIDataSource()
+data_source = WebCrawlerDataSource()
 data_source.initialize()
 
 result = data_source.search_stock("贵州茅台")

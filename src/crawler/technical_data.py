@@ -3,7 +3,7 @@ import os
 # 添加项目根目录到 Python 路径
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from src.crawler_tools.base_crawler import EastMoneyBaseSpider
+from src.crawler.base_crawler import EastMoneyBaseSpider
 
 import requests
 from typing import List, Optional

@@ -15,11 +15,11 @@ from mcp.server.fastmcp import FastMCP
 # 导入数据源接口和具体实现
 from src.data_source_interface import FinancialDataInterface
 from src.stock_data_source import WebCrawlerDataSource
-from src.utils import setup_logging
+from src.utils.utils import setup_logging
 
 # 导入各模块工具的注册函数
-from src.tools.search import register_search_tools as register_crawler_search_tools
-from src.tools.kline_data import register_kline_tools as register_crawler_kline_tools
+from src.mcp_tools.search import register_search_tools as register_crawler_search_tools
+from src.mcp_tools.kline_data import register_kline_tools as register_crawler_kline_tools
 
 
 # --- 日志配置 ---

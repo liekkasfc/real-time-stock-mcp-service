@@ -33,8 +33,8 @@ class WebCrawlerDataSource(FinancialDataInterface):
         """
         try:
             # 初始化爬虫连接
-            from src.crawler_tools.basic_data import StockSearcher
-            from src.crawler_tools.technical_data import KlineSpider
+            from src.crawler.basic_data import StockSearcher
+            from src.crawler.technical_data import KlineSpider
             self.kline_spider = KlineSpider()
             self.searcher = StockSearcher()
             logger.info("WebCrawler连接成功")

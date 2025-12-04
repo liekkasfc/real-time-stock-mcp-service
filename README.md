@@ -95,10 +95,14 @@ real-time-stock-mcp-service/
 └── src/
     ├── data_source_interface.py    # 数据源接口定义
     ├── stock_data_source.py     # 东方财富网数据源实现
-    ├── utils.py                    # 通用工具函数
-    ├── formatting/
-    │   └── markdown_formatter.py   # Markdown格式化工具
-    └── tools/  # MCP工具模块
+    ├── utils/
+         │   ├── utils.py    # 工具模块通用工具
+         │   └── markdown_formatter.py   # Markdown格式化工具
+         │
+         └─→ mcp_tools/                     ← 各个MCP工具模块
+              ├─ search.py
+              ├─ kline_data.py
+              └─ ...
 
 ```
 
@@ -129,7 +133,7 @@ real-time-stock-mcp-service/
 示例：
 
 ```python
-# src/tools/my_new_tool.py
+# src/mcp_tools/my_new_tool.py
 from mcp.server.fastmcp import FastMCP
 from src.data_source_interface import StockDataSource
 
@@ -148,10 +152,10 @@ def register_my_tools(app: FastMCP, data_source: StockDataSource):
 
 ```python
 # 原来
-active_data_source: StockDataSource = StockAPIDataSource()
+active_data_source: FinancialDataInterface = WebCrawlerDataSource()
 
 # 切换为其他数据源
-active_data_source: StockDataSource = AnotherDataSource()
+active_data_source: FinancialDataInterface = AnotherDataSource()
 ```
 
 ## 注意事项
@@ -171,4 +175,4 @@ MIT License
 
 ## 联系方式
 
-如有问题，请提交 Issue 或联系项目维护者。
+如有问题，请提交 Issue 或联系项目开发者。

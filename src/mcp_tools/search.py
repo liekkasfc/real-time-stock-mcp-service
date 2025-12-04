@@ -1,12 +1,12 @@
 """
-股票搜索工具
-src/tools/search.py
-提供股票搜索和查询功能
+股票搜索相关工具
+src/mcp_tools/search.py
+提供股票搜索和最近交易日查询功能
 """
 import logging
 from mcp.server.fastmcp import FastMCP
 from ..data_source_interface import FinancialDataInterface
-from ..formatting.markdown_formatter import format_list_to_markdown_table
+from ..utils.markdown_formatter import format_list_to_markdown_table
 
 logger = logging.getLogger(__name__)
 

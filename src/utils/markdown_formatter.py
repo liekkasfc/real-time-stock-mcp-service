@@ -1,6 +1,6 @@
 """
 Markdown格式化工具
-src/formatting/markdown_formatter.py
+src/utils/markdown_formatter.py
 提供通用的Markdown格式化功能
 """
 
