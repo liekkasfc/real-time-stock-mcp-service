@@ -5,13 +5,13 @@
 """
 import logging
 from mcp.server.fastmcp import FastMCP
-from src.data_source_interface import FinancialDataSource
+from src.data_source_interface import FinancialDataInterface
 from src.utils import format_number
 
 logger = logging.getLogger(__name__)
 
 
-def register_search_tools(app: FastMCP, data_source: FinancialDataSource):
+def register_search_tools(app: FastMCP, data_source: FinancialDataInterface):
     """
     注册股票搜索相关工具
 

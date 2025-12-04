@@ -13,7 +13,7 @@ from datetime import datetime
 from mcp.server.fastmcp import FastMCP
 
 # 导入数据源接口和具体实现
-from src.data_source_interface import FinancialDataSource
+from src.data_source_interface import FinancialDataInterface
 from src.stock_data_source import WebCrawlerDataSource
 from src.utils import setup_logging
 
@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 # --- 依赖注入 ---
 # 实例化数据源，后续如需切换数据源，只需修改这一行
-active_data_source: FinancialDataSource = WebCrawlerDataSource()
+active_data_source: FinancialDataInterface = WebCrawlerDataSource()
 
 # --- 获取当前日期用于系统提示 ---
 current_date = datetime.now().strftime("%Y-%m-%d")

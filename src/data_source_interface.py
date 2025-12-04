@@ -24,7 +24,7 @@ class NoDataFoundError(DataSourceError):
     pass
 
 
-class FinancialDataSource(ABC):
+class FinancialDataInterface(ABC):
     """
     Abstract base class defining the interface for financial data sources.
     Implementations of this class provide access to specific financial data APIs

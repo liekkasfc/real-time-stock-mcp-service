@@ -6,12 +6,12 @@
 
 import logging
 from typing import List, Optional, Dict
-from .data_source_interface import FinancialDataSource, DataSourceError, NoDataFoundError, LoginError
+from .data_source_interface import FinancialDataInterface, DataSourceError, NoDataFoundError, LoginError
 
 logger = logging.getLogger(__name__)
 
 
-class WebCrawlerDataSource(FinancialDataSource):
+class WebCrawlerDataSource(FinancialDataInterface):
     """
     基于网络爬虫的数据源实现
     """

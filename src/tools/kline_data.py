@@ -5,13 +5,13 @@ K线数据工具
 """
 import logging
 from mcp.server.fastmcp import FastMCP
-from ..data_source_interface import FinancialDataSource
+from ..data_source_interface import FinancialDataInterface
 from ..utils import format_number, format_percentage
 
 logger = logging.getLogger(__name__)
 
 
-def register_kline_tools(app: FastMCP, data_source: FinancialDataSource):
+def register_kline_tools(app: FastMCP, data_source: FinancialDataInterface):
     """
     注册K线数据相关工具
 
