@@ -25,21 +25,8 @@ uv sync
 
 这将自动创建虚拟环境并安装所有依赖。
 
-## 3. 配置 API 密钥 (可选)
 
-如果需要 API 密钥，请创建 `.env` 文件:
-
-```bash
-cp .env.example .env
-```
-
-然后编辑 `.env` 文件，填入你的 API Token:
-
-```
-STOCKAPI_TOKEN=你的API密钥
-```
-
-## 4. 测试运行
+## 3. 测试运行
 
 直接运行服务器:
 
@@ -49,15 +36,15 @@ uv run mcp_server.py
 
 服务器将启动并等待 MCP 客户端连接。
 
-## 5. 在 client中配置(Claude为例) 
+## 4. 在 client中配置(Claude为例) 
 
-### 5.1 找到配置文件
+### 4.1 找到配置文件
 
 **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`  
 **MacOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`  
 **Linux**: `~/.config/Claude/claude_desktop_config.json`  
 
-### 5.2 编辑配置文件
+### 4.2 编辑配置文件
 
 在配置文件中添加以下内容（注意替换路径）:
 
@@ -100,7 +87,7 @@ uv run mcp_server.py
 
 ```
 
-## 6. 查看日志
+## 5. 查看日志
 
 如需查看详细日志，可以修改 `mcp_server.py` 中的日志级别:
 
@@ -108,7 +95,7 @@ uv run mcp_server.py
 setup_logging(level=logging.DEBUG)  # 改为 DEBUG 级别
 ```
 
-## 7. 下一步
+## 6. 下一步
 
 - 阅读 [README.md](README.md) 了解所有可用工具
 - 查看项目结构了解如何添加新功能

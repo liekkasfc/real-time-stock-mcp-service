@@ -41,13 +41,6 @@ cd real-time-stock-mcp-service
 uv sync
 ```
 
-### 4. 配置 API 密钥
-
-在项目根目录创建 `.env` 文件（可选，如果API需要密钥）：
-
-```
-STOCKAPI_TOKEN=your_api_token_here
-```
 
 ## 使用方法
 
