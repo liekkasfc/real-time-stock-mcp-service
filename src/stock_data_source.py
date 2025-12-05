@@ -22,6 +22,7 @@ class WebCrawlerDataSource(FinancialDataInterface):
         """
         self.kline_spider = None
         self.searcher = None
+        self.real_time_spider = None
         logger.info("WebCrawler数据源实例已创建")
     
     def initialize(self) -> bool:
@@ -35,8 +36,10 @@ class WebCrawlerDataSource(FinancialDataInterface):
             # 初始化爬虫连接
             from src.crawler.basic_data import StockSearcher
             from src.crawler.technical_data import KlineSpider
+            from src.crawler.real_time_data import RealTimeDataSpider
             self.kline_spider = KlineSpider()
             self.searcher = StockSearcher()
+            self.real_time_spider = RealTimeDataSpider()
             logger.info("WebCrawler连接成功")
             return True
         except Exception as e:
@@ -50,6 +53,7 @@ class WebCrawlerDataSource(FinancialDataInterface):
         # 清理爬虫连接（如果需要的话）
         self.kline_spider = None
         self.searcher = None
+        self.real_time_spider = None
         logger.info("WebCrawler连接已清理")
 
     # ==================== 行情数据 ====================
@@ -238,3 +242,41 @@ class WebCrawlerDataSource(FinancialDataInterface):
         except Exception as e:
             logger.error(f"获取最近交易日信息失败: {e}")
             raise DataSourceError(f"获取最近交易日信息失败: {e}")
+
+    def get_real_time_data(self, symbol: str) -> Dict:
+        """
+        获取股票实时数据
+
+        Args:
+            symbol: 股票代码，包含交易所代码，例如 SZ300750
+
+        Returns:
+            实时股票数据字典，包含市场状态、报价等信息
+
+        Raises:
+            DataSourceError: 当数据源出现错误时
+            NoDataFoundError: 当找不到指定股票数据时
+        """
+        # 检查real_time_spider是否已初始化
+        if self.real_time_spider is None:
+            logger.error("实时数据爬虫未初始化")
+            raise DataSourceError("实时数据爬虫未初始化，请先调用initialize()方法")
+
+        try:
+            # 调用爬虫获取实时数据
+            real_time_data = self.real_time_spider.get_real_time_data(symbol)
+
+            # 如果没有数据，抛出NoDataFoundError异常
+            if not real_time_data:
+                logger.warning(f"未找到股票 {symbol} 的实时数据")
+                raise NoDataFoundError(f"未找到股票 {symbol} 的实时数据")
+
+            logger.info(f"成功获取股票 {symbol} 的实时数据")
+            return real_time_data
+
+        except NoDataFoundError:
+            # 重新抛出NoDataFoundError
+            raise
+        except Exception as e:
+            logger.error(f"获取实时数据失败: {e}")
+            raise DataSourceError(f"获取实时数据失败: {e}")

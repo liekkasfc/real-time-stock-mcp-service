@@ -4,7 +4,7 @@
 
 import logging
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 
@@ -149,3 +149,33 @@ def truncate_string(text: str, max_length: int = 100, suffix: str = '...') -> st
     if len(text) <= max_length:
         return text
     return text[:max_length - len(suffix)] + suffix
+
+
+def format_timestamp(timestamp) -> str:
+    """
+    将时间戳转换为可读的时间字符串
+    
+    Args:
+        timestamp: 时间戳（毫秒或秒）
+        
+    Returns:
+        格式化后的时间字符串
+    """
+    if not timestamp:
+        return "N/A"
+    
+    try:
+        # 如果时间戳是字符串，先转换为数字
+        if isinstance(timestamp, str):
+            timestamp = int(timestamp)
+        
+        # 雪球API返回的时间戳通常是毫秒单位
+        if timestamp > 1000000000000:  # 判断是否为毫秒时间戳
+            timestamp = timestamp / 1000
+            
+        # 转换为本地时间字符串
+        from datetime import datetime
+        dt = datetime.fromtimestamp(timestamp)
+        return dt.strftime("%Y-%m-%d %H:%M:%S")
+    except (ValueError, OSError, Exception):
+        return str(timestamp)

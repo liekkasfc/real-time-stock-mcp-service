@@ -20,6 +20,7 @@ from src.utils.utils import setup_logging
 # 导入各模块工具的注册函数
 from src.mcp_tools.search import register_search_tools as register_crawler_search_tools
 from src.mcp_tools.kline_data import register_kline_tools as register_crawler_kline_tools
+from src.mcp_tools.real_time_data import register_real_time_data_tools as register_crawler_real_time_tools
 
 
 # --- 日志配置 ---
@@ -43,6 +44,7 @@ app = FastMCP(
 
 📈 主要功能:
 - 查找股票名称，代码
+- 实时股票数据
 - K线数据（日线、周线、月线）
 - 计算技术指标
 """
@@ -53,8 +55,9 @@ logger.info("开始注册工具模块...")
 
 # 注册K线数据工具
 
-register_crawler_kline_tools(app, active_data_source)
 register_crawler_search_tools(app, active_data_source)
+register_crawler_real_time_tools(app, active_data_source)
+register_crawler_kline_tools(app, active_data_source)
 
 logger.info("所有工具模块注册完成")
 

@@ -132,3 +132,20 @@ class FinancialDataInterface(ABC):
             DataSourceError: 当数据源出现错误时
         """
         pass
+
+    @abstractmethod
+    def get_real_time_data(self, symbol: str) -> Dict:
+        """
+        获取股票实时数据
+
+        Args:
+            symbol: 股票代码，包含交易所代码，例如 SZ300750
+
+        Returns:
+            实时股票数据字典，包含市场状态、报价等信息
+
+        Raises:
+            DataSourceError: 当数据源出现错误时
+            NoDataFoundError: 当找不到指定股票数据时
+        """
+        pass
