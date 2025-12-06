@@ -354,3 +354,38 @@ class WebCrawlerDataSource(FinancialDataInterface):
         except Exception as e:
             logger.error(f"获取报告日期数据失败: {e}")
             raise DataSourceError(f"获取报告日期数据失败: {e}")
+
+    def get_business_scope(self, stock_code: str) -> Optional[Dict[Any, Any]]:
+        """
+        获取主营业务范围
+
+        Args:
+            stock_code: 股票代码，包含交易所代码，如300059.SZ
+
+        Returns:
+            主营业务范围数据字典，包含主营业务范围信息
+            如果没有找到数据或出错，返回包含错误信息的字典
+
+        Raises:
+            DataSourceError: 当数据源出现错误时
+        """
+        # 检查fundamental_crawler是否已初始化
+        if self.fundamental_crawler is None:
+            logger.error("基本面数据爬虫未初始化")
+            raise DataSourceError("基本面数据爬虫未初始化，请先调用initialize()方法")
+
+        try:
+            # 调用爬虫获取主营业务范围数据
+            business_scope_data = self.fundamental_crawler.get_business_scope(stock_code)
+
+            # 如果没有数据，返回None
+            if business_scope_data is None:
+                logger.info(f"未获取到股票 {stock_code} 的主营业务范围数据")
+                return None
+
+            logger.info(f"成功获取股票 {stock_code} 的主营业务范围数据")
+            return business_scope_data
+
+        except Exception as e:
+            logger.error(f"获取主营业务范围数据失败: {e}")
+            raise DataSourceError(f"获取主营业务范围数据失败: {e}")

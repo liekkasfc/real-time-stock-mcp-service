@@ -68,6 +68,45 @@ def register_fundamental_tools(app: FastMCP, data_source: FinancialDataInterface
             return "N/A"
 
     @app.tool()
+    def get_business_scope(stock_code: str) -> str:
+        """
+        获取主营业务范围
+
+        获取指定股票的主营业务范围信息。
+
+        Args:
+            stock_code: 股票代码，包含交易所代码，格式如300059.SZ
+
+        Returns:
+            主营业务范围文本
+
+        Examples:
+            - get_business_scope("688041.SH")
+        """
+        try:
+            logger.info(f"获取主营业务范围: {stock_code}")
+
+            # 从数据源获取原始数据
+            raw_data = data_source.get_business_scope(stock_code)
+
+            if not raw_data:
+                return f"未找到股票代码 '{stock_code}' 的主营业务范围数据"
+
+            # 检查是否有错误信息
+            if "error" in raw_data:
+                error_msg = raw_data["error"]
+                return f"获取主营业务范围数据失败: {error_msg}"
+
+            # 提取BUSINESS_SCOPE内容
+            business_scope = raw_data.get('BUSINESS_SCOPE', 'N/A')
+            
+            return business_scope
+
+        except Exception as e:
+            logger.error(f"获取主营业务范围时出错: {e}")
+            return f"获取主营业务范围失败: {str(e)}"
+
+    @app.tool()
     def get_main_business(
         stock_code: str,
         report_date: Optional[str] = None
