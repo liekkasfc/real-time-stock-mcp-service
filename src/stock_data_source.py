@@ -5,7 +5,7 @@ src/stock_data_source.py
 """
 
 import logging
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Any
 from .data_source_interface import FinancialDataInterface, DataSourceError, NoDataFoundError, LoginError
 
 logger = logging.getLogger(__name__)
@@ -23,6 +23,7 @@ class WebCrawlerDataSource(FinancialDataInterface):
         self.kline_spider = None
         self.searcher = None
         self.real_time_spider = None
+        self.fundamental_crawler = None
         logger.info("WebCrawler数据源实例已创建")
     
     def initialize(self) -> bool:
@@ -37,9 +38,11 @@ class WebCrawlerDataSource(FinancialDataInterface):
             from src.crawler.basic_data import StockSearcher
             from src.crawler.technical_data import KlineSpider
             from src.crawler.real_time_data import RealTimeDataSpider
+            from src.crawler.fundamental_data import FundamentalDataCrawler
             self.kline_spider = KlineSpider()
             self.searcher = StockSearcher()
             self.real_time_spider = RealTimeDataSpider()
+            self.fundamental_crawler = FundamentalDataCrawler()
             logger.info("WebCrawler连接成功")
             return True
         except Exception as e:
@@ -280,3 +283,39 @@ class WebCrawlerDataSource(FinancialDataInterface):
         except Exception as e:
             logger.error(f"获取实时数据失败: {e}")
             raise DataSourceError(f"获取实时数据失败: {e}")
+
+    def get_main_business(self, stock_code: str, report_date: Optional[str] = None) -> Optional[List[Dict[Any, Any]]]:
+        """
+        获取主营业务构成
+
+        Args:
+            stock_code: 股票代码，包含交易所代码，如300059.SZ
+            report_date: 报告日期，格式为YYYY-MM-DD，可选参数
+
+        Returns:
+            主营业务构成数据列表，每个元素是一个字典，包含主营业务信息
+            如果没有找到数据或出错，返回包含错误信息的列表
+
+        Raises:
+            DataSourceError: 当数据源出现错误时
+        """
+        # 检查fundamental_crawler是否已初始化
+        if self.fundamental_crawler is None:
+            logger.error("基本面数据爬虫未初始化")
+            raise DataSourceError("基本面数据爬虫未初始化，请先调用initialize()方法")
+
+        try:
+            # 调用爬虫获取主营业务数据
+            main_business_data = self.fundamental_crawler.get_main_business(stock_code, report_date)
+
+            # 如果没有数据，返回空列表
+            if main_business_data is None:
+                logger.info(f"未获取到股票 {stock_code} 的主营业务数据")
+                return []
+
+            logger.info(f"成功获取股票 {stock_code} 的主营业务数据")
+            return main_business_data
+
+        except Exception as e:
+            logger.error(f"获取主营业务数据失败: {e}")
+            raise DataSourceError(f"获取主营业务数据失败: {e}")

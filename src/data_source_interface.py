@@ -6,7 +6,7 @@
 """
 
 from abc import ABC, abstractmethod
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, Any
 
 
 class DataSourceError(Exception):
@@ -147,5 +147,23 @@ class FinancialDataInterface(ABC):
         Raises:
             DataSourceError: 当数据源出现错误时
             NoDataFoundError: 当找不到指定股票数据时
+        """
+        pass
+
+    @abstractmethod
+    def get_main_business(self, stock_code: str, report_date: Optional[str] = None) -> Optional[List[Dict[Any, Any]]]:
+        """
+        获取主营业务构成
+
+        Args:
+            stock_code: 股票代码，包含交易所代码，如300059.SZ
+            report_date: 报告日期，格式为YYYY-MM-DD，可选参数
+
+        Returns:
+            主营业务构成数据列表，每个元素是一个字典，包含主营业务信息
+            如果没有找到数据或出错，返回包含错误信息的列表或者None
+
+        Raises:
+            DataSourceError: 当数据源出现错误时
         """
         pass

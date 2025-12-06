@@ -21,6 +21,7 @@ from src.utils.utils import setup_logging
 from src.mcp_tools.search import register_search_tools as register_crawler_search_tools
 from src.mcp_tools.kline_data import register_kline_tools as register_crawler_kline_tools
 from src.mcp_tools.real_time_data import register_real_time_data_tools as register_crawler_real_time_tools
+from src.mcp_tools.fundamental import register_fundamental_tools as register_crawler_fundamental_tools
 
 
 # --- 日志配置 ---
@@ -58,6 +59,7 @@ logger.info("开始注册工具模块...")
 register_crawler_search_tools(app, active_data_source)
 register_crawler_real_time_tools(app, active_data_source)
 register_crawler_kline_tools(app, active_data_source)
+register_crawler_fundamental_tools(app, active_data_source)
 
 logger.info("所有工具模块注册完成")
 
