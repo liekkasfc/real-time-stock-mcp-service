@@ -254,3 +254,29 @@ class FinancialDataInterface(ABC):
             DataSourceError: 当数据源出现错误时
         """
         pass
+
+    @abstractmethod
+    def get_institutional_rating(self, stock_code: str, begin_time: str, end_time: str) -> Optional[List[Dict[Any, Any]]]:
+        """
+        获取机构评级数据
+
+        Args:
+            stock_code: 股票代码，不含交易所代码，格式如688041，
+            begin_time: 开始时间，格式如2025-10-23
+            end_time: 结束时间，格式如2025-12-07
+
+        Returns:
+            机构评级数据列表，每个元素是一个字典，包含以下字段：
+            - title: 研报标题
+            - stockName: 股票名称
+            - stockCode: 股票代码
+            - orgName: 机构名称
+            - publishDate: 发布日期
+            - emRatingName: 评级
+            - researcher: 研究员
+            如果没有找到数据或出错，返回包含错误信息的列表
+
+        Raises:
+            DataSourceError: 当数据源出现错误时
+        """
+        pass

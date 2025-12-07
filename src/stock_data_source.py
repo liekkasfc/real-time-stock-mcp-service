@@ -483,3 +483,40 @@ class WebCrawlerDataSource(FinancialDataInterface):
         except Exception as e:
             logger.error(f"获取估值分析数据失败: {e}")
             raise DataSourceError(f"获取估值分析数据失败: {e}")
+
+    def get_institutional_rating(self, stock_code: str, begin_time: str, end_time: str) -> Optional[List[Dict[Any, Any]]]:
+        """
+        获取机构评级数据
+
+        Args:
+            stock_code: 股票代码，不含交易所代码，格式如688041
+            begin_time: 开始时间，格式如2025-10-23
+            end_time: 结束时间，格式如2025-12-07
+
+        Returns:
+            机构评级数据列表，每个元素是一个字典，包含研报信息
+            如果没有找到数据或出错，返回包含错误信息的列表
+
+        Raises:
+            DataSourceError: 当数据源出现错误时
+        """
+        # 检查valuation_crawler是否已初始化
+        if self.valuation_crawler is None:
+            logger.error("估值数据爬虫未初始化")
+            raise DataSourceError("估值数据爬虫未初始化，请先调用initialize()方法")
+
+        try:
+            # 调用爬虫获取机构评级数据
+            institutional_rating_data = self.valuation_crawler.get_institutional_rating(stock_code, begin_time, end_time)
+
+            # 如果没有数据或返回错误，记录日志并返回结果
+            if institutional_rating_data is None or (isinstance(institutional_rating_data, list) and len(institutional_rating_data) == 0):
+                logger.info(f"未获取到股票 {stock_code} 在 {begin_time} 到 {end_time} 期间的机构评级数据")
+                return []
+
+            logger.info(f"成功获取股票 {stock_code} 在 {begin_time} 到 {end_time} 期间的机构评级数据")
+            return institutional_rating_data
+
+        except Exception as e:
+            logger.error(f"获取机构评级数据失败: {e}")
+            raise DataSourceError(f"获取机构评级数据失败: {e}")

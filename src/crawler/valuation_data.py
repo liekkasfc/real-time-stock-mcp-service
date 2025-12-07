@@ -1,5 +1,7 @@
 import sys
 import os
+import time
+
 # 添加项目根目录到 Python 路径
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
@@ -7,6 +9,8 @@ from src.crawler.base_crawler import EastMoneyBaseSpider
 
 import requests
 from typing import Optional, Dict, Any, List
+import json
+import re
 
 
 class ValuationDataCrawler(EastMoneyBaseSpider):
@@ -18,6 +22,7 @@ class ValuationDataCrawler(EastMoneyBaseSpider):
     
     VALUATION_TREND_URL = "https://datacenter.eastmoney.com/securities/api/data/v1/get"
     VALUATION_PERCENTILE_URL = "https://datacenter.eastmoney.com/securities/api/data/v1/get"
+    INSTITUTIONAL_RATING_URL = "https://reportapi.eastmoney.com/report/list"
     
     # 指标类型常量
     INDICATOR_TYPE_PE_TTM = 1  # 市盈率TTM
@@ -58,6 +63,66 @@ class ValuationDataCrawler(EastMoneyBaseSpider):
         :param timeout: 请求超时时间
         """
         super().__init__(session, timeout)
+
+    def get_institutional_rating(self, stock_code: str, begin_time: str, end_time: str) -> Optional[List[Dict[Any, Any]]]:
+        """
+        获取机构评级数据
+        
+        :param stock_code: 股票代码，如688041
+        :param begin_time: 开始时间，格式如2025-10-23
+        :param end_time: 结束时间，格式如2025-12-07
+        :return: 机构评级数据列表
+        """
+        # 移除股票代码中的交易所后缀（如果存在）
+        clean_stock_code = stock_code.split('.')[0] if '.' in stock_code else stock_code
+        
+        # 更新headers以更接近浏览器行为
+        headers = self.headers.copy()
+        headers.update({
+            "Referer": "https://data.eastmoney.com/",
+            "Host": "reportapi.eastmoney.com"
+        })
+        
+        params = {
+            "cb": "datatable1167765",
+            "pageNo": 1,
+            "pageSize": 50,
+            "code": clean_stock_code,
+            "industryCode": "",
+            "industry": "",
+            "rating": "",
+            "ratingchange": "",
+            "beginTime": begin_time,
+            "endTime": end_time,
+            "fields": "",
+            "qType": 0,
+            "p": 1,
+            "pageNum": 1,
+            "pageNumber": 1,
+            "_": int(round(time.time() * 1000))
+        }
+        
+        try:
+            response = self.session.get(
+                self.INSTITUTIONAL_RATING_URL, 
+                params=params, 
+                headers=headers,
+                timeout=self.timeout
+            )
+            response.raise_for_status()
+            
+            # 提取JSON数据（去除JSONP包装）
+            text = response.text
+            match = re.search(r'datatable1167765\((.*)\)', text)
+            if match:
+                json_str = match.group(1)
+                data = json.loads(json_str)
+                return data.get("data", [])
+            else:
+                return []
+                
+        except Exception as e:
+            return [{"error": f"获取机构评级数据出错: {str(e)}"}]
 
     def get_valuation_analysis(self, stock_code: str, indicator_type: int = 1, date_type: int = 3) -> Optional[Dict[Any, Any]]:
         """

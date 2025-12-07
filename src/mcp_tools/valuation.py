@@ -4,7 +4,6 @@ src/mcp_tools/valuation.py
 提供估值数据查询和分析功能
 """
 import logging
-from typing import Optional
 from mcp.server.fastmcp import FastMCP
 from ..data_source_interface import FinancialDataInterface
 from ..utils.markdown_formatter import format_list_to_markdown_table
@@ -20,6 +19,71 @@ def register_valuation_tools(app: FastMCP, data_source: FinancialDataInterface):
         app: FastMCP应用实例
         data_source: 数据源接口实例
     """
+    
+    @app.tool()
+    def get_institutional_rating(stock_code: str, begin_time: str, end_time: str) -> str:
+        """
+        获取机构评级数据
+
+        获取指定股票在一定时间范围内的机构评级数据。
+
+        Args:
+            stock_code: 股票代码，如688041或688041.SH
+            begin_time: 开始时间，格式如2025-10-23
+            end_time: 结束时间，格式如2025-12-07
+
+        Returns:
+            机构评级数据的Markdown表格
+
+        Examples:
+            - get_institutional_rating("688041", "2025-01-01", "2025-12-31")
+            - get_institutional_rating("688041.SH", "2025-06-01", "2025-12-07")
+        """
+        try:
+            logger.info(f"获取机构评级数据: {stock_code}, 时间范围: {begin_time} 到 {end_time}")
+
+            # 获取机构评级数据
+            raw_data = data_source.get_institutional_rating(stock_code, begin_time, end_time)
+            
+            # 检查是否有错误信息
+            if raw_data is None:
+                return f"未找到股票代码 '{stock_code}' 的机构评级数据"
+            
+            # 检查是否返回了错误
+            if isinstance(raw_data, list) and len(raw_data) > 0 and "error" in raw_data[0]:
+                error_msg = raw_data[0]["error"]
+                return f"获取机构评级数据失败: {error_msg}"
+            
+            # 检查是否为空数据
+            if not raw_data:
+                return f"在 {begin_time} 到 {end_time} 时间段内未找到股票 '{stock_code}' 的机构评级数据"
+            
+            # 格式化为表格
+            table_data = []
+            for item in raw_data:
+                # 处理作者信息
+                authors = ", ".join(item.get("author", [])) if item.get("author") else item.get("researcher", "N/A")
+
+                formatted_item = {
+                    "发布日期": item.get("publishDate", "N/A")[:10] if item.get("publishDate") else "N/A",
+                    "研报标题": item.get("title", "N/A")[:30] + "..." if item.get("title") and len(item.get("title")) > 30 else item.get("title", "N/A"),
+                    "评级": item.get("emRatingName", item.get("sRatingName", "N/A")),
+                    "机构名称": item.get("orgName", "N/A"),
+                    "预期EPS": item.get("predictThisYearEps", "N/A"),
+                    "预期PE": item.get("predictThisYearPe", "N/A"),
+                    "研究员": authors[:20] + "..." if len(authors) > 20 else authors,
+
+                }
+                table_data.append(formatted_item)
+            
+            result = f"**机构评级数据 (共{len(table_data)}条)**\n\n"
+            result += format_list_to_markdown_table(table_data)
+            
+            return result
+
+        except Exception as e:
+            logger.error(f"工具执行出错: {e}")
+            return f"执行失败: {str(e)}"
     
     @app.tool()
     def get_valuation_analysis(stock_code: str, indicator_type: int = 1, date_type: int = 3) -> str:

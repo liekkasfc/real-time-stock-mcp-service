@@ -29,7 +29,7 @@ class RealTimeDataSpider(EastMoneyBaseSpider):
         """
         获取股票实时数据
 
-        :param symbol: 股票代码，例如 SZ300750 (SZ表示深圳证券交易所) 或 SH600519 (SH表示上海证券交易所)
+        :param symbol: 股票代码，包含交易所代码，格式如 SZ300750  或 SH600519
         :return: 实时股票数据
         """
         params = {
