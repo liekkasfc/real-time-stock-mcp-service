@@ -280,3 +280,20 @@ class FinancialDataInterface(ABC):
             DataSourceError: 当数据源出现错误时
         """
         pass
+
+    @abstractmethod
+    def get_main_financial_data(self, stock_code: str) -> Optional[Dict[Any, Any]]:
+        """
+        获取公司主要财务数据
+
+        Args:
+            stock_code: 股票代码，如601127
+
+        Returns:
+            公司主要财务数据字典，包含各种关键财务和业务指标
+            如果没有找到数据或出错，返回包含错误信息的字典或者None
+
+        Raises:
+            DataSourceError: 当数据源出现错误时
+        """
+        pass

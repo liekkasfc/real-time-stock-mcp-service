@@ -520,3 +520,38 @@ class WebCrawlerDataSource(FinancialDataInterface):
         except Exception as e:
             logger.error(f"获取机构评级数据失败: {e}")
             raise DataSourceError(f"获取机构评级数据失败: {e}")
+
+    def get_main_financial_data(self, stock_code: str) -> Optional[Dict[Any, Any]]:
+        """
+        获取公司主要财务数据
+
+        Args:
+            stock_code: 股票代码，如601127
+
+        Returns:
+            公司主要财务数据字典，包含各种关键财务和业务指标
+            如果没有找到数据或出错，返回包含错误信息的字典或者None
+
+        Raises:
+            DataSourceError: 当数据源出现错误时
+        """
+        # 检查fundamental_crawler是否已初始化
+        if self.fundamental_crawler is None:
+            logger.error("基本面数据爬虫未初始化")
+            raise DataSourceError("基本面数据爬虫未初始化，请先调用initialize()方法")
+
+        try:
+            # 调用爬虫获取公司主要财务数据
+            main_data = self.fundamental_crawler.get_main_financial_data(stock_code)
+
+            # 如果没有数据或返回错误，记录日志并返回结果
+            if main_data is None or "error" in main_data:
+                logger.info(f"未获取到股票 {stock_code} 的公司主要财务数据")
+                return main_data  # 返回包含错误信息的字典
+
+            logger.info(f"成功获取股票 {stock_code} 的公司主要财务数据")
+            return main_data
+
+        except Exception as e:
+            logger.error(f"获取公司主要财务数据失败: {e}")
+            raise DataSourceError(f"获取公司主要财务数据失败: {e}")

@@ -1,3 +1,6 @@
+import json
+import re
+
 from src.crawler.base_crawler import EastMoneyBaseSpider
 
 import requests
@@ -15,6 +18,7 @@ class FundamentalDataCrawler(EastMoneyBaseSpider):
     REPORT_DATE_URL = "https://datacenter.eastmoney.com/securities/api/data/v1/get"
     BUSINESS_SCOPE_URL = "https://datacenter.eastmoney.com/securities/api/data/v1/get"
     BUSINESS_REVIEW_URL = "https://datacenter.eastmoney.com/securities/api/data/v1/get"
+    MAIN_DATA_URL = "https://push2.eastmoney.com/api/qt/stock/get"
 
     def __init__(
             self,
@@ -28,6 +32,82 @@ class FundamentalDataCrawler(EastMoneyBaseSpider):
         :param timeout: 请求超时时间
         """
         super().__init__(session, timeout)
+
+    @staticmethod
+    def _parse_jsonp_custom(text: str) -> Optional[Dict]:
+        """
+        解析 JSONP 响应 (自定义版本，适配东方财富API)
+        
+        :param text: 形如 callback({...}) 的字符串
+        :return: 解析后的字典，失败返回 None
+        """
+        # 使用更宽松的正则表达式匹配东方财富的JSONP格式
+        match = re.search(r'^.+?\((.*)\);$', text.strip(), re.DOTALL)
+        if not match:
+            # 如果上面的模式不匹配，尝试原始模式
+            match = re.search(r'^\w+\((.*)\)$', text.strip(), re.DOTALL)
+            if not match:
+                return None
+        try:
+            return json.loads(match.group(1))
+        except json.JSONDecodeError:
+            return None
+
+    def get_main_financial_data(self, stock_code: str) -> Optional[Dict[Any, Any]]:
+        """
+        获取公司主要财务数据
+        
+        :param stock_code: 股票代码
+        :return: 公司主要财务数据字典
+        """
+        # 将股票代码转换为东方财富的 secid 格式
+        secid = self.format_secid(stock_code)
+        
+        # 生成 callback 参数
+        callback = self._generate_callback()
+        
+        params = {
+            "invt": 2,
+            "fltt": 1,
+            "fields": "f57,f107,f162,f152,f167,f92,f59,f183,f184,f105,f185,f186,f187,f173,f188,f84,f116,f85,f117,f190,f189,f62,f55",
+            "secid": secid,
+            "ut": "fa5fd1943c7b386f172d6893dbfba10b",
+            "wbp2u": "|0|0|0|web",
+            "dect": 1,
+            "cb": callback
+        }
+        
+        # 保存原始headers
+        original_headers = self.headers.copy()
+        
+        # 添加特定于该API的请求头
+        self.headers.update({
+            "Referer": "https://www.eastmoney.com/",
+            "Host": "push2.eastmoney.com"
+        })
+        
+        try:
+            response = self._get(self.MAIN_DATA_URL, params)
+            # 检查响应是否成功
+            if response.status_code == 200:
+                parsed_response = self._parse_jsonp_custom(response.text)
+                if parsed_response and parsed_response.get("rc") == 0:
+                    # 只要rc为0就认为请求成功，即使data为空也应该返回
+                    if "data" in parsed_response:
+                        return parsed_response["data"]
+                    else:
+                        return {}
+                else:
+                    # 如果不成功，返回错误信息
+                    message = parsed_response.get("message", "未知错误") if parsed_response else "未知错误"
+                    return {"error": message}
+            else:
+                return {"error": f"HTTP错误: {response.status_code}"}
+        except Exception as e:
+            return {"error": str(e)}
+        finally:
+            # 恢复原始headers
+            self.headers = original_headers
 
     def get_report_dates(self, stock_code: str) -> Optional[List[Dict[Any, Any]]]:
         """

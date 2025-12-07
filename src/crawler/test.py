@@ -1,6 +1,7 @@
 from src.crawler.valuation_data import ValuationDataCrawler
 from src.crawler.real_time_data import  RealTimeDataSpider
 from src.crawler.technical_data import KlineSpider
+from src.crawler.fundamental_data import FundamentalDataCrawler
 
 # 测试估值分析数据
 valuation_crawler = ValuationDataCrawler()
@@ -43,6 +44,13 @@ valuation_crawler = ValuationDataCrawler()
 # print(real_time_data)
 
 # 获取k线
-k_line = KlineSpider().get_klines("300750", beg="20251123", end="20251128", klt=KlineSpider.KLT_DAY, fqt=KlineSpider.FQT_FORWARD)
+# k_line = KlineSpider().get_klines("300750", beg="20251123", end="20251128", klt=KlineSpider.KLT_DAY, fqt=KlineSpider.FQT_FORWARD)
+#
+# print(k_line)
 
-print(k_line)
+
+# 测试公司主要财务数据
+print("测试公司主要财务数据:")
+fundamental_crawler = FundamentalDataCrawler()
+company_main_data = fundamental_crawler.get_main_financial_data("601127")
+print(company_main_data)

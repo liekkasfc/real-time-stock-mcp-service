@@ -187,3 +187,104 @@ def register_fundamental_tools(app: FastMCP, data_source: FinancialDataInterface
         except Exception as e:
             logger.error(f"获取经营评述时出错: {e}")
             return f"获取经营评述失败: {str(e)}"
+
+    @app.tool()
+    def get_main_financial_data(stock_code: str) -> str:
+        """
+        获取公司主要财务数据
+
+        获取指定股票的主要财务和业务数据。
+
+        Args:
+            stock_code: 股票代码，如601127
+
+        Returns:
+            公司主要财务数据的Markdown表格
+
+        Examples:
+            - get_main_financial_data("601127")
+        """
+        try:
+            logger.info(f"获取公司主要财务数据: {stock_code}")
+
+            # 从数据源获取原始数据
+            raw_data = data_source.get_main_financial_data(stock_code)
+
+            if not raw_data:
+                return f"未找到股票代码 '{stock_code}' 的主要财务数据"
+
+            # 检查是否有错误信息
+            if "error" in raw_data:
+                error_msg = raw_data["error"]
+                return f"获取公司主要数据失败: {error_msg}"
+
+            # 字段映射和格式化
+            field_mapping = {
+                'f57': '股票代码',
+                'f55': '收益',
+                'f183': '总营收',
+                'f184': '总营收同比',
+                'f105': '净利润',
+                'f185': '净利润同比',
+                'f186': '毛利率',
+                'f187': '净利率',
+                'f173': 'ROE',
+                'f188': '负债率',
+                'f84': '总股本',
+                'f116': '总市值',
+                'f85': '流通股',
+                'f117': '流通市值',
+                'f92': '每股净资产',
+                'f190': '每股未分配利润',
+                'f189': '上市时间',
+            }
+
+            # 格式化数值数据
+            formatted_data = []
+            for key, name in field_mapping.items():
+                value = raw_data.get(key, 'N/A')
+                
+                # 特殊处理数值字段
+                if key in ['f55', 'f84', 'f85', 'f92', 'f105', 'f116', 'f117', 'f173', 'f183', 'f184', 'f185', 'f186', 'f187', 'f188', 'f190']:
+                    if value != 'N/A' and value is not None:
+                        # 百分比字段
+                        if key in ['f173', 'f184', 'f185', 'f186', 'f187', 'f188']:
+                            value = f"{float(value):.2f}%"
+                        # 货币字段（转换为亿元或万元显示）
+                        elif key in ['f84', 'f85', 'f105', 'f116', 'f117', 'f183']:
+                            value_float = float(value)
+                            if value_float >= 1e8:  # 大于1亿
+                                value = f"{value_float/1e8:.2f} 亿元"
+                            elif value_float >= 1e4:  # 大于1万
+                                value = f"{value_float/1e4:.2f} 万元"
+                            else:
+                                value = f"{value_float:.2f} 元"
+                        # 每股净资产和每股未分配利润
+                        elif key in ['f92', 'f190']:
+                            value = f"{float(value):.2f} 元"
+                        # 收益
+                        elif key == 'f55':
+                            value = f"{float(value):.4f}"
+                        else:
+                            value = str(value)
+                
+                # 特殊处理上市时间
+                if key == 'f189' and value != 'N/A':
+                    # 将YYYYMMDD格式转换为YYYY-MM-DD
+                    try:
+                        date_str = str(value)
+                        year = int(date_str[:4])
+                        month = int(date_str[4:6])
+                        day = int(date_str[6:8])
+                        value = f"{year}-{month:02d}-{day:02d}"
+                    except:
+                        value = str(value)
+                formatted_data.append({'指标': name, '数值': value})
+
+            # 生成Markdown表格
+            table = format_list_to_markdown_table(formatted_data)
+            return f"## {stock_code} 公司主要财务数据\n\n{table}"
+
+        except Exception as e:
+            logger.error(f"获取公司主要财务数据时出错: {e}")
+            return f"获取公司主要财务数据失败: {str(e)}"
