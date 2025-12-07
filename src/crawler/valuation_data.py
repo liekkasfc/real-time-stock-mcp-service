@@ -124,7 +124,7 @@ class ValuationDataCrawler(EastMoneyBaseSpider):
         except Exception as e:
             return [{"error": f"获取机构评级数据出错: {str(e)}"}]
 
-    def get_valuation_analysis(self, stock_code: str, indicator_type: int = 1, date_type: int = 3) -> Optional[Dict[Any, Any]]:
+    def get_valuation_analysis(self, stock_code: str, indicator_type: int, date_type: int = 3) -> Optional[Dict[Any, Any]]:
         """
         获取估值分析数据，包括当前值和历史分位数
         
