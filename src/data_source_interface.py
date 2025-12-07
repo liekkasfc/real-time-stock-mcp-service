@@ -299,12 +299,17 @@ class FinancialDataInterface(ABC):
         pass
 
     @abstractmethod
-    def get_financial_summary(self, stock_code: str) -> Optional[List[Dict[Any, Any]]]:
+    def get_financial_summary(self, stock_code: str, date_type_code: str = "004") -> Optional[List[Dict[Any, Any]]]:
         """
         获取业绩概况数据
 
         Args:
             stock_code: 股票代码，包含交易所代码，格式如688041.SH
+            date_type_code: 报告类型代码
+                          "001" - 一季度报告
+                          "002" - 半年度报告
+                          "003" - 三季度报告
+                          "004" - 年度报告
 
         Returns:
             业绩概况数据列表，每个元素是一个字典，包含业绩概况信息

@@ -26,17 +26,22 @@ class FinancialAnalysisCrawler(EastMoneyBaseSpider):
         """
         super().__init__(session, timeout)
 
-    def get_financial_summary(self, stock_code: str) -> Optional[List[Dict[Any, Any]]]:
+    def get_financial_summary(self, stock_code: str, date_type_code: str = "004") -> Optional[List[Dict[Any, Any]]]:
         """
         获取业绩概况数据
 
         :param stock_code: 股票代码，包含交易所代码，格式如688041.SH
+        :param date_type_code: 报告类型代码
+                             "001" - 一季度报告
+                             "002" - 半年度报告
+                             "003" - 三季度报告
+                             "004" - 年度报告
         :return: 业绩概况数据列表
         """
         params = {
             "reportName": "RPT_F10_FN_PERFORM",
             "columns": "SECUCODE,SECURITY_CODE,SECURITY_NAME_ABBR,ORG_CODE,REPORT_DATE,DATE_TYPE_CODE,DATE_TYPE,PARENTNETPROFIT,TOTALOPERATEREVE,KCFJCXSYJLR,PARENTNETPROFIT_RATIO,TOTALOPERATEREVE_RATIO,KCFJCXSYJLR_RATIO,YEAR,TYPE,IS_PUBLISH",
-            "filter": f'(SECUCODE="{stock_code}")(DATE_TYPE_CODE in ("003","004"))(REPORT_DATE<=\'2025-09-30\')',
+            "filter": f'(SECUCODE="{stock_code}")(DATE_TYPE_CODE in ("{date_type_code}"))',
             "sortTypes": "-1",
             "sortColumns": "REPORT_DATE",
             "pageNumber": 1,

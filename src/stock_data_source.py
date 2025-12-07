@@ -116,5 +116,5 @@ class WebCrawlerDataSource(FinancialDataInterface):
     def get_main_financial_data(self, stock_code: str) -> Optional[Dict[Any, Any]]:
         return self.fundamental_crawler.get_main_financial_data(stock_code)
 
-    def get_financial_summary(self, stock_code: str) -> Optional[List[Dict[Any, Any]]]:
-        return self.financial_analysis_crawler.get_financial_summary(stock_code)
+    def get_financial_summary(self, stock_code: str, date_type_code: str = "004") -> Optional[List[Dict[Any, Any]]]:
+        return self.financial_analysis_crawler.get_financial_summary(stock_code, date_type_code)

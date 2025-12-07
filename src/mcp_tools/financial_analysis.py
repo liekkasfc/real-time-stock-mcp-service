@@ -37,7 +37,7 @@ def register_financial_analysis_tools(app: FastMCP, data_source: FinancialDataIn
             return value
 
     @app.tool()
-    def get_financial_summary(stock_code: str) -> str:
+    def get_financial_summary(stock_code: str, date_type_code: str = "004") -> str:
         """
         获取业绩概况数据
 
@@ -45,19 +45,24 @@ def register_financial_analysis_tools(app: FastMCP, data_source: FinancialDataIn
 
         Args:
             stock_code: 股票代码，包含交易所代码，格式如688041.SH
+            date_type_code: 报告类型代码
+                          "001" - 一季度报告
+                          "002" - 半年度报告
+                          "003" - 三季度报告
+                          "004" - 年度报告
 
         Returns:
             业绩概况数据的Markdown表格
 
         Examples:
             - get_financial_summary("688041.SH")
-            - get_financial_summary("300750.SZ")
+            - get_financial_summary("300750.SZ", "003")
         """
         try:
             logger.info(f"获取股票 {stock_code} 的业绩概况数据")
 
             # 从数据源获取业绩概况数据
-            revenue_data = data_source.get_financial_summary(stock_code)
+            revenue_data = data_source.get_financial_summary(stock_code, date_type_code)
 
             if not revenue_data:
                 return f"未能获取到股票 {stock_code} 的业绩概况数据"
@@ -95,7 +100,8 @@ def register_financial_analysis_tools(app: FastMCP, data_source: FinancialDataIn
                     kcfjcxsyjlr_ratio = f"{float(kcfjcxsyjlr_ratio):.2f}%"
 
                 formatted_item = {
-                    '报告期': item.get('TYPE', ''),
+                    '报告期': item.get('DATE_TYPE', ''),
+                    '报告类型': item.get('TYPE', ''),
                     '营业收入': total_operate_reve,
                     '营业收入同比增长': total_operate_reve_ratio,
                     '归母净利润': parent_net_profit,
