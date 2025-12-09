@@ -37,7 +37,6 @@ def register_valuation_tools(app: FastMCP, data_source: FinancialDataInterface):
 
         Examples:
             - get_institutional_rating("688041", "2025-01-01", "2025-12-31")
-            - get_institutional_rating("688041.SH", "2025-06-01", "2025-12-07")
         """
         try:
             logger.info(f"获取机构评级数据: {stock_code}, 时间范围: {begin_time} 到 {end_time}")
@@ -112,7 +111,7 @@ def register_valuation_tools(app: FastMCP, data_source: FinancialDataInterface):
         获取指定股票的估值分析数据，包括当前值和历史分位数。
 
         Args:
-            stock_code: 股票代码，包含交易所代码，如300059.SZ
+            stock_code: 股票代码，如300059
             indicator_type: 指标类型
                           1 - 市盈率TTM
                           2 - 市净率MRQ
@@ -128,8 +127,8 @@ def register_valuation_tools(app: FastMCP, data_source: FinancialDataInterface):
             估值分析数据的Markdown表格
 
         Examples:
-            - get_valuation_analysis("300059.SZ", 1, 3)
-            - get_valuation_analysis("000001.SZ", 2, 2)
+            - get_valuation_analysis("300059", 1, 3)
+            - get_valuation_analysis("000001", 2, 2)
         """
         try:
             logger.info(f"获取估值分析数据: {stock_code}, 指标类型: {indicator_type}, 时间周期: {date_type}")

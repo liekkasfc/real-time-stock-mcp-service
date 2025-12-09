@@ -44,7 +44,7 @@ def register_financial_analysis_tools(app: FastMCP, data_source: FinancialDataIn
         获取指定股票的业绩概况数据，包括历史各期的营业收入、净利润等财务指标。
 
         Args:
-            stock_code: 股票代码，包含交易所代码，格式如688041.SH
+            stock_code: 股票代码，格式如688041
             date_type_code: 报告类型代码
                           "001" - 一季度报告
                           "002" - 半年度报告
@@ -55,8 +55,8 @@ def register_financial_analysis_tools(app: FastMCP, data_source: FinancialDataIn
             业绩概况数据的Markdown表格
 
         Examples:
-            - get_financial_summary("688041.SH")
-            - get_financial_summary("300750.SZ", "003")
+            - get_financial_summary("688041")
+            - get_financial_summary("300750", "003")
         """
         try:
             logger.info(f"获取股票 {stock_code} 的业绩概况数据")
@@ -128,13 +128,13 @@ def register_financial_analysis_tools(app: FastMCP, data_source: FinancialDataIn
         获取指定股票的股东户数数据，包括历史各期的股东人数及对应的收盘价。
 
         Args:
-            stock_code: 股票代码，包含交易所代码，格式如688041.SH
+            stock_code: 股票代码，格式如688041
 
         Returns:
             股东户数数据的Markdown表格
 
         Examples:
-            - get_holder_number("688041.SH")
+            - get_holder_number("688041")
         """
         try:
             logger.info(f"获取股票 {stock_code} 的股东户数数据")
@@ -186,13 +186,13 @@ def register_financial_analysis_tools(app: FastMCP, data_source: FinancialDataIn
         获取指定股票的同行业公司盈利对比数据，包括同行业公司的基本财务和盈利指标。
 
         Args:
-            stock_code: 股票代码，必须在在数字后添加交易所代码，如688041.SH
+            stock_code: 股票代码，如688041
 
         Returns:
             行业公司盈利数据的Markdown表格
 
         Examples:
-            - get_industry_profit_comparison("688041.SH")
+            - get_industry_profit_comparison("688041")
         """
         try:
             # 从数据源获取同行业公司盈利对比数据
@@ -303,13 +303,13 @@ def register_financial_analysis_tools(app: FastMCP, data_source: FinancialDataIn
         获取指定股票的财务比率数据，包括盈利能力、偿债能力、运营能力等关键财务指标。
 
         Args:
-            stock_code: 股票代码，包含交易所代码，格式如300750.SZ
+            stock_code: 股票代码，格式如300750
 
         Returns:
             财务比率数据的Markdown表格
 
         Examples:
-            - get_financial_ratios("300750.SZ")
+            - get_financial_ratios("300750")
         """
         try:
             logger.info(f"获取股票 {stock_code} 的财务比率数据")
@@ -343,7 +343,11 @@ def register_financial_analysis_tools(app: FastMCP, data_source: FinancialDataIn
                 gross_rprofit_ratio = item.get('GROSS_RPOFIT_RATIO')
                 if gross_rprofit_ratio is not None:
                     gross_rprofit_ratio = f"{gross_rprofit_ratio:.2f}%"
-                
+
+                sale_cash_ratio = item.get('SALE_CASH_RATIO')
+                if sale_cash_ratio is not None:
+                    sale_cash_ratio = f"{sale_cash_ratio:.2f}%"
+
                 sale_npr = item.get('SALE_NPR')
                 if sale_npr is not None:
                     sale_npr = f"{sale_npr:.2f}%"
@@ -443,6 +447,8 @@ def register_financial_analysis_tools(app: FastMCP, data_source: FinancialDataIn
                     '流动比率': current_ratio,
                     '总资产周转率': total_assets_tr,
                     '总资产周转率排名': total_assets_tr_rank,
+                    '销售现金比率': sale_cash_ratio,
+                    '销售现金比率排名': sale_cash_ratio_rank,
                     '应收账款周转率': accounts_rece_tr,
                     '存货周转率': inventory_tr,
                     '流动资产周转率': current_total_assets_tr,

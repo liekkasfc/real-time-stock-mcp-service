@@ -28,13 +28,13 @@ def register_fundamental_tools(app: FastMCP, data_source: FinancialDataInterface
         获取指定股票的主营业务范围信息。
 
         Args:
-            stock_code: 股票代码，包含交易所代码，格式如300059.SZ
+            stock_code: 股票代码，格式如300059
 
         Returns:
             主营业务范围文本
 
         Examples:
-            - get_business_scope("688041.SH")
+            - get_business_scope("688041")
         """
         try:
             logger.info(f"获取主营业务范围: {stock_code}")
@@ -67,13 +67,13 @@ def register_fundamental_tools(app: FastMCP, data_source: FinancialDataInterface
         获取指定股票的主营构成分析数据。
 
         Args:
-            stock_code: 股票代码，必须在后面加上交易所代码，如300059.SZ
+            stock_code: 股票代码，纯数字，如300059
 
         Returns:
             主营业务构成数据的Markdown表格
 
         Examples:
-            - get_main_business("300059.SZ")
+            - get_main_business("300059")
         """
         try:
             logger.info(f"获取主营业务构成: {stock_code}")
@@ -153,13 +153,13 @@ def register_fundamental_tools(app: FastMCP, data_source: FinancialDataInterface
         获取指定股票的经营评述信息。
 
         Args:
-            stock_code: 股票代码，必须在后面加上交易所代码，格式如300059.SZ
+            stock_code: 股票代码，格式如300059
 
         Returns:
             经营评述文本
 
         Examples:
-            - get_business_review("688041.SH")
+            - get_business_review("688041")
         """
         try:
             logger.info(f"获取经营评述: {stock_code}")

@@ -110,6 +110,10 @@ class EastMoneyBaseSpider(ABC):
         - "000977.SZ"   -> "0.000977"
         - "600000.SH"   -> "1.600000"
         - "0.000977"    -> "0.000977" (已是 secid)
+        - "00977.HK"    -> "116.00977" (H股)
+        - "116.00977"   -> "116.00977" (已是 secid)
+        - "01810"       -> "116.01810" (港股)
+        - "01810.HK"    -> "116.01810" (港股)
 
         :param stock_code: 股票代码
         :return: secid 格式字符串
@@ -120,19 +124,29 @@ class EastMoneyBaseSpider(ABC):
             left, right = code.split(".", maxsplit=1)
 
             # 已经是 secid 格式
-            if left in {"0", "1"} and right.isdigit():
+            if left in {"0", "1", "116"} and right.isdigit():
                 return f"{left}.{right}"
 
             # 带后缀格式：000977.SZ
             if right in {"SZ", "SH"}:
                 market = "0" if right == "SZ" else "1"
                 return f"{market}.{left}"
+            
+            # H股格式：00977.HK 或 01810.HK
+            if right == "HK":
+                return f"116.{left.zfill(5)}"  # 港股代码补齐为5位
 
         # 纯数字代码
         if code.isdigit():
             # 6 开头沪市，其他深市
-            market = "1" if code.startswith("6") else "0"
-            return f"{market}.{code}"
+            if code.startswith("6"):
+                return f"1.{code}"
+            # 5位数港股代码（通常以0开头）
+            elif len(code) == 5:
+                return f"116.{code}"
+            # 其他情况为深市
+            else:
+                return f"0.{code}"
 
         raise ValueError(f"无法解析股票代码: {stock_code}")
 

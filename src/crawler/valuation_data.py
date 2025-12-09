@@ -2,6 +2,8 @@ import sys
 import os
 import time
 
+from src.utils.utils import add_exchange_suffix
+
 # 添加项目根目录到 Python 路径
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
@@ -128,7 +130,7 @@ class ValuationDataCrawler(EastMoneyBaseSpider):
         """
         获取估值分析数据，包括当前值和历史分位数
         
-        :param stock_code: 股票代码，包含交易所代码，格式如688041.SH
+        :param stock_code: 股票代码，格式如688041
         :param indicator_type: 指标类型
                               1 - 市盈率TTM
                               2 - 市净率MRQ
@@ -153,6 +155,7 @@ class ValuationDataCrawler(EastMoneyBaseSpider):
                  - PERCENTILE_FIFTY: 50%历史分位数(中位数)
                  - PERCENTILE_SEVENTY: 70%历史分位数
         """
+        stock_code = add_exchange_suffix(stock_code)
         # 第一个API调用：获取估值指标当前值
         params1 = {
             "reportName": "RPT_CUSTOM_DMSK_TREND",

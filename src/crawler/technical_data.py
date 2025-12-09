@@ -72,11 +72,11 @@ class KlineSpider(EastMoneyBaseSpider):
         data = self._get_json(self.BASE_URL, params)
 
         if not data.get("data"):
-            raise RuntimeError(f"响应无 data 字段: {data}")
+            raise RuntimeError(f"{secid}响应无 data 字段: {data}")
 
         klines = data["data"].get("klines")
         if klines is None:
-            raise RuntimeError(f"响应无 klines 字段: {data}")
+            raise RuntimeError(f"{secid}响应无 klines 字段: {data}")
 
         return klines
 

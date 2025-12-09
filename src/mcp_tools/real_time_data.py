@@ -29,7 +29,7 @@ def register_real_time_data_tools(app: FastMCP, data_source: FinancialDataInterf
         获取指定股票的实时行情数据，包括价格、涨跌幅、成交量等信息。
 
         Args:
-            symbol: 股票代码，支持纯数字代码（A股），如 300750 或 600519，港股无需前缀
+            symbol: 股票代码，如 300750 或 600519
 
         Returns:
             格式化的实时股票数据，以Markdown表格形式展示

@@ -2,7 +2,7 @@ from src.crawler.base_crawler import EastMoneyBaseSpider
 
 import requests
 from typing import Optional, Dict, Any, List
-
+from src.utils.utils import add_exchange_suffix
 
 class FinancialAnalysisCrawler(EastMoneyBaseSpider):
     """
@@ -30,7 +30,7 @@ class FinancialAnalysisCrawler(EastMoneyBaseSpider):
         """
         获取业绩概况数据
 
-        :param stock_code: 股票代码，包含交易所代码，格式如688041.SH
+        :param stock_code: 股票代码，如688041
         :param date_type_code: 报告类型代码
                              "001" - 一季度报告
                              "002" - 半年度报告
@@ -38,10 +38,11 @@ class FinancialAnalysisCrawler(EastMoneyBaseSpider):
                              "004" - 年度报告
         :return: 业绩概况数据列表
         """
+        format_stock_code = add_exchange_suffix(stock_code)  # 添加交易所代码
         params = {
             "reportName": "RPT_F10_FN_PERFORM",
             "columns": "SECUCODE,SECURITY_CODE,SECURITY_NAME_ABBR,ORG_CODE,REPORT_DATE,DATE_TYPE_CODE,DATE_TYPE,PARENTNETPROFIT,TOTALOPERATEREVE,KCFJCXSYJLR,PARENTNETPROFIT_RATIO,TOTALOPERATEREVE_RATIO,KCFJCXSYJLR_RATIO,YEAR,TYPE,IS_PUBLISH",
-            "filter": f'(SECUCODE="{stock_code}")(DATE_TYPE_CODE in ("{date_type_code}"))',
+            "filter": f'(SECUCODE="{format_stock_code}")(DATE_TYPE_CODE in ("{date_type_code}"))',
             "sortTypes": "-1",
             "sortColumns": "REPORT_DATE",
             "pageNumber": 1,
@@ -67,13 +68,14 @@ class FinancialAnalysisCrawler(EastMoneyBaseSpider):
         """
         获取股东户数数据
 
-        :param stock_code: 股票代码，包含交易所代码，格式如688041.SH
+        :param stock_code: 股票代码，如688041
         :return: 股东户数数据列表
         """
+        format_stock_code = add_exchange_suffix(stock_code)  # 添加交易所代码后缀
         params = {
             "reportName": "RPT_HOLDERNUM_DET",
             "columns": "SECURITY_CODE,SECUCODE,SECURITY_NAME_ABBR,HOLDER_NUM,REPORT,END_DATE,CLOSE_PRICE",
-            "filter": f'(SECUCODE="{stock_code}")',
+            "filter": f'(SECUCODE="{format_stock_code}")',
             "sortTypes": "-1",
             "sortColumns": "END_DATE",
             "pageNumber": 1,
@@ -99,14 +101,15 @@ class FinancialAnalysisCrawler(EastMoneyBaseSpider):
         """
         获取最新三个报告日期
 
-        :param stock_code: 股票代码，包含交易所代码，如688041.SH
+        :param stock_code: 股票代码，如688041
         :return: 最新三个报告日期列表，格式为 YYYY-MM-DD
         """
+        format_stock_code = add_exchange_suffix(stock_code)  # 添加交易所代码后缀
         params = {
             "reportName": "RPT_F10_INDUSTRY_COMPARED",
             "columns": "REPORT_DATE",
             "quoteColumns": "",
-            "filter": f'(SECUCODE="{stock_code}")',
+            "filter": f'(SECUCODE="{format_stock_code}")',
             "sortTypes": "1,-1",
             "sortColumns": "IS_SELF,TOTALOPERATEREVE_RANK",
             "pageNumber": 1,
@@ -146,7 +149,7 @@ class FinancialAnalysisCrawler(EastMoneyBaseSpider):
         """
         获取财务比率数据
         
-        :param stock_code: 股票代码，包含交易所代码，如688041.SH
+        :param stock_code: 股票代码，如688041
         :param report_dates: 报告日期列表，格式为 YYYY-MM-DD，如果未提供则使用最新两个报告日期
         :return: 财务比率数据列表
         """
@@ -161,6 +164,7 @@ class FinancialAnalysisCrawler(EastMoneyBaseSpider):
                 return [{"error": "无法获取有效的报告日期"}]
 
         all_data = []
+        format_stock_code = add_exchange_suffix(stock_code)  # 添加交易所代码后缀
         for report_date in report_dates:
             params = {
                 "reportName": "RPT_F10_FINANALYSIS",
@@ -172,7 +176,7 @@ class FinancialAnalysisCrawler(EastMoneyBaseSpider):
                           "DATE_TYPE,WEIGHT_ROE_RANK,NETPROFIT_YOY_RATIO_RANK,TOTAL_ASSETS_TR_RANK,"
                           "SALE_CASH_RATIO_RANK,DEBT_ASSET_RATIO_RANK",
                 "quoteColumns": "",
-                "filter": f'(SECUCODE="{stock_code}")(GROUP_DATE=\'{report_date}\')',
+                "filter": f'(SECUCODE="{format_stock_code}")(GROUP_DATE=\'{report_date}\')',
                 "sortTypes": "1",
                 "sortColumns": "REPORT_DATE",
                 "pageNumber": 1,
@@ -200,7 +204,7 @@ class FinancialAnalysisCrawler(EastMoneyBaseSpider):
         """
         获取同行业公司盈利数据
 
-        :param stock_code: 股票代码，数字后必须添加交易所代码，如688041.SH
+        :param stock_code: 股票代码，如688041
         :param report_dates: 报告日期列表，格式为 YYYY-MM-DD，如果未提供则使用最新三个报告日期
         :return: 同行业公司盈利数据列表
         """
@@ -213,16 +217,16 @@ class FinancialAnalysisCrawler(EastMoneyBaseSpider):
                 # 使用今年的年报日期作为备选方案
                 curr_year = datetime.datetime.now().year
                 default_date = f"{curr_year}-9-30"
-                print(f"无法获取最新报告日期，尝试使用默认日期: {default_date}")
                 report_dates = [default_date]
 
         all_data = []
+        format_stock_code = add_exchange_suffix(stock_code)
         for report_date in report_dates:
             params = {
                 "reportName": "RPT_F10_INDUSTRY_COMPARED",
                 "columns": "ALL",
                 "quoteColumns": "",
-                "filter": f'(SECUCODE="{stock_code}")(REPORT_DATE=\'{report_date}\')',
+                "filter": f'(SECUCODE="{format_stock_code}")(REPORT_DATE=\'{report_date}\')',
                 "sortTypes": "-1,1",
                 "sortColumns": "IS_SELF,TOTALOPERATEREVE_RANK",
                 "pageNumber": 1,

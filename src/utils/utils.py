@@ -179,3 +179,75 @@ def format_timestamp(timestamp) -> str:
         return dt.strftime("%Y-%m-%d %H:%M:%S")
     except (ValueError, OSError, Exception):
         return str(timestamp)
+
+
+def add_exchange_prefix(stock_code: str) -> str:
+    """
+    为股票代码自动添加交易所代码前缀
+    
+    Args:
+        stock_code: 股票代码，如 300750
+        
+    Returns:
+        添加前缀后的股票代码，如 SZ.300750
+    """
+    if not stock_code:
+        return stock_code
+    
+    # 根据股票代码自动识别交易所
+    exchange = _get_exchange_code(stock_code)
+    return f"{exchange}.{stock_code}"
+
+
+def add_exchange_suffix(stock_code: str) -> str:
+    """
+    为股票代码自动添加交易所代码后缀
+    
+    Args:
+        stock_code: 股票代码，如 300750
+        
+    Returns:
+        添加后缀后的股票代码，如 300750.SZ
+    """
+    if not stock_code:
+        return stock_code
+    
+    # 根据股票代码自动识别交易所
+    exchange = _get_exchange_code(stock_code)
+    return f"{stock_code}.{exchange}"
+
+
+def _get_exchange_code(stock_code: str) -> str:
+    """
+    根据股票代码自动识别交易所代码
+
+    港股判断必须放在 A 股的前面，
+    因为港股也常以 0 开头（如 00700、01810），否则会被误判为 SZ。
+    """
+    if not stock_code:
+        return "SH"  # 默认上海交易所
+
+    code = stock_code.upper()
+
+    # ---- 1. 先判断港股 ----
+    # 规则：5 位数字 或 结尾 .HK
+    if code.endswith(".HK"):
+        return "HK"
+    if code.isdigit() and len(code) == 5:
+        return "HK"
+
+    # ---- 2. 再判断 A 股 ----
+    # 上海：6xxxx、5xxxx
+    if code.startswith(("6", "5")):
+        return "SH"
+
+    # 深圳：0xxxx、3xxxx
+    if code.startswith(("0", "3")):
+        return "SZ"
+
+    # ---- 3. 再判断北交所 ----
+    if code.startswith(("4", "8")):
+        return "BJ"
+
+    # ---- 4. 兜底 ----
+    return "SH"
