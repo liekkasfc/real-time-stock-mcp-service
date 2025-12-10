@@ -246,7 +246,7 @@ def register_kline_tools(app: FastMCP, data_source: FinancialDataInterface):
         获取指定股票在指定日期范围内的K线数据。仅支持A股
 
         Args:
-            stock_code: 股票代码
+            stock_code: 股票代码，要在数字后加上交易所代码，格式如300750.SZ
             start_date: 开始日期 (YYYY-MM-DD格式)
             end_date: 结束日期 (YYYY-MM-DD格式)
             frequency: K线周期，可选值: "d"(日), "w"(周), "m"(月), "5"(5分钟), "15"(15分钟), "30"(30分钟), "60"(60分钟)
@@ -255,8 +255,8 @@ def register_kline_tools(app: FastMCP, data_source: FinancialDataInterface):
             K线数据的Markdown表格
 
         Examples:
-            - get_kline("600519", "2024-01-01", "2024-01-31")
-            - get_kline("000001", "2024-10-01", "2024-10-31", "w")
+            - get_kline("300750.SZ", "2024-01-01", "2024-01-31")
+            - get_kline("300750.SZ", "2024-10-01", "2024-10-31", "w")
         """
         try:
             logger.info(f"获取K线: {stock_code}, {start_date} 至 {end_date}, 频率: {frequency}")
@@ -328,7 +328,7 @@ def register_kline_tools(app: FastMCP, data_source: FinancialDataInterface):
         获取指定股票在指定日期范围内的技术指标数据。
 
         Args:
-            stock_code: 股票代码
+            stock_code: 股票代码，要在数字后加上交易所代码，格式如300750.SZ
             start_date: 开始日期 (YYYY-MM-DD格式)
             end_date: 结束日期 (YYYY-MM-DD格式)
             frequency: K线周期，可选值: "d"(日), "w"(周), "m"(月), "5"(5分钟), "15"(15分钟), "30"(30分钟), "60"(60分钟)
@@ -337,8 +337,8 @@ def register_kline_tools(app: FastMCP, data_source: FinancialDataInterface):
             技术指标数据的Markdown表格
 
         Examples:
-            - get_technical_indicators("600519", "2024-01-01", "2024-01-31")
-            - get_technical_indicators("000001", "2024-10-01", "2024-10-31", "w")
+            - get_technical_indicators("300750.SZ", "2024-01-01", "2024-01-31")
+            - get_technical_indicators("300750.SZ", "2024-10-01", "2024-10-31", "w")
         """
         try:
             logger.info(f"获取技术指标: {stock_code}, {start_date} 至 {end_date}, 频率: {frequency}")

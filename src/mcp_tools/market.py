@@ -128,7 +128,7 @@ def register_market_tools(app: FastMCP, data_source: FinancialDataInterface):
         获取指定股票最近10个交易日的资金流向数据，包括主力资金、散户资金、中单资金等的流入流出情况。
 
         Args:
-            stock_code: 股票代码，数字后带上交易所代码，格式如688041.SH
+            stock_code: 股票代码，要在数字后带上交易所代码，格式如688041.SH
 
         Returns:
             格式化的历史资金流向数据，以Markdown表格形式展示

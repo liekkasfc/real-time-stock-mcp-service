@@ -6,7 +6,6 @@ from src.crawler.base_crawler import EastMoneyBaseSpider
 import requests
 from typing import Optional, Dict, Any, List
 
-from src.utils.utils import add_exchange_suffix
 
 
 class FundamentalDataCrawler(EastMoneyBaseSpider):
@@ -115,10 +114,9 @@ class FundamentalDataCrawler(EastMoneyBaseSpider):
         """
         获取报告日期
         
-        :param stock_code: 股票代码，格式如688041
+        :param stock_code: 股票代码，要在数字后加上交易所代码，格式如688041.SH
         :return: 报告日期列表
         """
-        stock_code = add_exchange_suffix(stock_code)
         params = {
             "reportName": "RPT_F10_FN_MAINOP",
             "columns": "SECUCODE,REPORT_DATE",
@@ -148,10 +146,9 @@ class FundamentalDataCrawler(EastMoneyBaseSpider):
         """
         获取主营业务范围
         
-        :param stock_code: 股票代码，格式如688041
+        :param stock_code: 股票代码，要在数字后加上交易所代码，格式如688041.SH
         :return: 主营业务范围数据字典
         """
-        stock_code = add_exchange_suffix(stock_code)
         params = {
             "reportName": "RPT_HSF9_BASIC_ORGINFO",
             "columns": "SECUCODE,SECURITY_CODE,BUSINESS_SCOPE",
@@ -178,10 +175,9 @@ class FundamentalDataCrawler(EastMoneyBaseSpider):
         """
         获取经营评述
         
-        :param stock_code: 股票代码，格式如688041
+        :param stock_code: 股票代码，要在数字后加上交易所代码，格式如688041.SH
         :return: 经营评述数据字典
         """
-        stock_code = add_exchange_suffix(stock_code)
         params = {
             "reportName": "RPT_F10_OP_BUSINESSANALYSIS",
             "columns": "SECUCODE,SECURITY_CODE,REPORT_DATE,BUSINESS_REVIEW",
@@ -209,11 +205,10 @@ class FundamentalDataCrawler(EastMoneyBaseSpider):
         """
         获取主营业务构成
         
-        :param stock_code: 股票代码，格式如300059
+        :param stock_code: 股票代码，要在数字后加上交易所代码，格式如688041.SH
         :param report_date: 报告日期，格式为YYYY-MM-DD，可选参数
         :return: 主营业务构成数据字典
         """
-        stock_code = add_exchange_suffix(stock_code)
         # 构建基础filter参数
         filter_param = f'(SECUCODE="{stock_code}")'
         

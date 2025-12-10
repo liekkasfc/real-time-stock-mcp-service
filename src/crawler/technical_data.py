@@ -48,7 +48,7 @@ class KlineSpider(EastMoneyBaseSpider):
         """
         获取 K 线数据
 
-        :param stock_code: 股票代码
+        :param stock_code: 股票代码，要在数字后加上交易所代码，格式如688041.SH
         :param beg: 开始日期 YYYYMMDD
         :param end: 结束日期 YYYYMMDD
         :param klt: K线周期（使用 KLT_* 常量）

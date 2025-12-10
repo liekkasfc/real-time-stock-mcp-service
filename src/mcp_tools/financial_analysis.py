@@ -44,7 +44,7 @@ def register_financial_analysis_tools(app: FastMCP, data_source: FinancialDataIn
         获取指定股票的业绩概况数据，包括历史各期的营业收入、净利润等财务指标。
 
         Args:
-            stock_code: 股票代码，格式如688041
+            stock_code: 股票代码，要在数字后加上交易所代码，格式如688041.SH
             date_type_code: 报告类型代码
                           "001" - 一季度报告
                           "002" - 半年度报告
@@ -55,8 +55,8 @@ def register_financial_analysis_tools(app: FastMCP, data_source: FinancialDataIn
             业绩概况数据的Markdown表格
 
         Examples:
-            - get_financial_summary("688041")
-            - get_financial_summary("300750", "003")
+            - get_financial_summary("688041.SH")
+            - get_financial_summary("688041.SH", "003")
         """
         try:
             logger.info(f"获取股票 {stock_code} 的业绩概况数据")
@@ -128,13 +128,13 @@ def register_financial_analysis_tools(app: FastMCP, data_source: FinancialDataIn
         获取指定股票的股东户数数据，包括历史各期的股东人数及对应的收盘价。
 
         Args:
-            stock_code: 股票代码，格式如688041
+            stock_code: 股票代码，要在数字后加上交易所代码，格式如688041.SH
 
         Returns:
             股东户数数据的Markdown表格
 
         Examples:
-            - get_holder_number("688041")
+            - get_holder_number("688041.SH")
         """
         try:
             logger.info(f"获取股票 {stock_code} 的股东户数数据")
@@ -186,13 +186,13 @@ def register_financial_analysis_tools(app: FastMCP, data_source: FinancialDataIn
         获取指定股票的同行业公司盈利对比数据，包括同行业公司的基本财务和盈利指标。
 
         Args:
-            stock_code: 股票代码，如688041
+            stock_code: 股票代码，要在数字后加上交易所代码，格式如688041.SH
 
         Returns:
             行业公司盈利数据的Markdown表格
 
         Examples:
-            - get_industry_profit_comparison("688041")
+            - get_industry_profit_comparison("688041.SH")
         """
         try:
             # 从数据源获取同行业公司盈利对比数据
@@ -303,13 +303,13 @@ def register_financial_analysis_tools(app: FastMCP, data_source: FinancialDataIn
         获取指定股票的财务比率数据，包括盈利能力、偿债能力、运营能力等关键财务指标。
 
         Args:
-            stock_code: 股票代码，格式如300750
+            stock_code: 股票代码，要在数字后加上交易所代码，格式如300750.SZ
 
         Returns:
             财务比率数据的Markdown表格
 
         Examples:
-            - get_financial_ratios("300750")
+            - get_financial_ratios("300750.SZ")
         """
         try:
             logger.info(f"获取股票 {stock_code} 的财务比率数据")

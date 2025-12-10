@@ -111,7 +111,7 @@ def register_valuation_tools(app: FastMCP, data_source: FinancialDataInterface):
         获取指定股票的估值分析数据，包括当前值和历史分位数。
 
         Args:
-            stock_code: 股票代码，如300059
+            stock_code: 股票代码，要在数字后加上交易所代码，格式如300750.SZ
             indicator_type: 指标类型
                           1 - 市盈率TTM
                           2 - 市净率MRQ
@@ -127,8 +127,8 @@ def register_valuation_tools(app: FastMCP, data_source: FinancialDataInterface):
             估值分析数据的Markdown表格
 
         Examples:
-            - get_valuation_analysis("300059", 1, 3)
-            - get_valuation_analysis("000001", 2, 2)
+            - get_valuation_analysis("300750.SZ", 1, 3)
+            - get_valuation_analysis("300750.SZ", 2, 2)
         """
         try:
             logger.info(f"获取估值分析数据: {stock_code}, 指标类型: {indicator_type}, 时间周期: {date_type}")

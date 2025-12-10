@@ -130,7 +130,7 @@ class ValuationDataCrawler(EastMoneyBaseSpider):
         """
         获取估值分析数据，包括当前值和历史分位数
         
-        :param stock_code: 股票代码，格式如688041
+        :param stock_code: 股票代码，要在数字后加上交易所代码，格式如688041.SH
         :param indicator_type: 指标类型
                               1 - 市盈率TTM
                               2 - 市净率MRQ
@@ -155,7 +155,6 @@ class ValuationDataCrawler(EastMoneyBaseSpider):
                  - PERCENTILE_FIFTY: 50%历史分位数(中位数)
                  - PERCENTILE_SEVENTY: 70%历史分位数
         """
-        stock_code = add_exchange_suffix(stock_code)
         # 第一个API调用：获取估值指标当前值
         params1 = {
             "reportName": "RPT_CUSTOM_DMSK_TREND",
