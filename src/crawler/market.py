@@ -153,3 +153,37 @@ class MarketSpider(EastMoneyBaseSpider):
             return [{"error": response.get("message", "未知错误")}]
         else:
             return [{"error": "网络请求失败"}]
+
+    def get_market_performance(self, secucode: str) -> Optional[List[Dict]]:
+        """
+        获取股票市场表现数据
+        
+        :param secucode: 股票代码，格式如300750.SZ
+        :return: 包含市场表现数据的列表
+        """
+        market_performance_url = "https://datacenter.eastmoney.com/securities/api/data/v1/get"
+        
+        params = {
+            "reportName": "RPT_PCF10_MARKETPER",
+            "columns": "ALL",
+            "quoteColumns": "",
+            "pageNumber": "1",
+            "pageSize": "4",
+            "sortTypes": "-1,1",
+            "sortColumns": "TRADE_DATE,TIME_TYPE",
+            "source": "HSF10",
+            "client": "PC",
+            "v": "08484108596743488"
+        }
+        
+        if secucode:
+            params["filter"] = f"(SECUCODE=\"{secucode}\")"
+        
+        response = self._get_json(market_performance_url, params)
+        
+        if response and response.get("result") and response["result"].get("data"):
+            return response["result"]["data"]
+        elif response:
+            return [{"error": response.get("message", "未知错误")}]
+        else:
+            return [{"error": "网络请求失败"}]

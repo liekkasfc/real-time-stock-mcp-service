@@ -483,3 +483,20 @@ class FinancialDataInterface(ABC):
             DataSourceError: 当数据源出现错误时
         """
         pass
+
+    @abstractmethod
+    def get_market_performance(self, secucode: str) -> Optional[List[Dict[Any, Any]]]:
+        """
+        获取市场表现数据
+
+        Args:
+            secucode: 股票代码，包含交易所代码，如 300750.SZ
+
+        Returns:
+            市场表现数据列表，每个元素是一个字典，包含与大盘和行业板块的涨跌对比
+            如果没有找到数据或出错，返回包含错误信息的列表或者None
+
+        Raises:
+            DataSourceError: 当数据源出现错误时
+        """
+        pass

@@ -152,3 +152,6 @@ class WebCrawlerDataSource(FinancialDataInterface):
 
     def get_valuation_comparison(self, stock_code: str) -> Optional[List[Dict[Any, Any]]]:
         return self.valuation_crawler.get_valuation_comparison(stock_code)
+
+    def get_market_performance(self, secucode: str) -> Optional[List[Dict[Any, Any]]]:
+        return self.market_spider.get_market_performance(secucode)

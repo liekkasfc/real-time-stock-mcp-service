@@ -428,4 +428,118 @@ def register_market_tools(app: FastMCP, data_source: FinancialDataInterface):
             logger.error(f"工具执行出错: {e}")
             return f"执行失败: {str(e)}"
 
+    @app.tool()
+    def get_market_performance(secucode: str) -> str:
+        """
+        获取股票市场表现数据，包括与大盘和行业板块的涨跌对比
+
+        Args:
+            secucode: 股票代码，包含交易所代码，如 300750.SZ
+
+        Returns:
+            格式化的市场表现数据，以Markdown表格形式展示
+
+        Examples:
+            - get_market_performance("300750.SZ")
+        """
+        def _format_market_performance_data(raw_data: List[Dict]) -> List[Dict]:
+            """
+            格式化市场表现数据
+
+            Args:
+                raw_data: 原始市场表现数据
+
+            Returns:
+                格式化后的市场表现数据列表
+            """
+            # 创建一个字典来存储不同时间段的数据
+            time_type_mapping = {
+                1: "最近1个月累计涨跌幅",
+                2: "最近3个月累计涨跌幅",
+                3: "最近6个月累计涨跌幅",
+                4: "今年以来累计涨跌幅"
+            }
+            
+            # 初始化结果数据结构
+            result_data = {}
+            
+            # 处理每条记录
+            for item in raw_data:
+                time_type = item.get("TIME_TYPE")
+                time_period = time_type_mapping.get(time_type, f"时期{time_type}")
+                
+                # 添加股票数据
+                secucode = item.get("SECUCODE", "")
+                security_name = item.get("SECURITY_NAME_ABBR", "")
+                stock_key = f"{secucode}_{security_name}"
+                if stock_key not in result_data:
+                    result_data[stock_key] = {
+                        "代码": secucode,
+                        "名称": security_name
+                    }
+                result_data[stock_key][time_period] = f"{item.get('CHANGERATE', 0):.2f}%"
+                
+                # 添加沪深300指数数据
+                hs300_secucode = item.get("HS300_SECUCODE", "")
+                hs300_name = item.get("HS300_NAME", "沪深300")
+                hs300_key = f"{hs300_secucode}_{hs300_name}"
+                if hs300_key not in result_data:
+                    result_data[hs300_key] = {
+                        "代码": hs300_secucode,
+                        "名称": hs300_name
+                    }
+                result_data[hs300_key][time_period] = f"{item.get('HS300_CHANGERATE', 0):.2f}%"
+                
+                # 添加所属板块数据
+                board_code = item.get("BOARD_CODE", "")
+                board_name = item.get("BOARD_NAME", "")
+                board_key = f"{board_code}_{board_name}"
+                if board_key not in result_data:
+                    result_data[board_key] = {
+                        "代码": board_code,
+                        "名称": board_name
+                    }
+                result_data[board_key][time_period] = f"{item.get('BOARD_CHANGERATE', 0):.2f}%"
+            
+            # 转换为列表格式并确保所有列都有值
+            formatted_list = []
+            for key, item in result_data.items():
+                formatted_item = {
+                    "代码": item.get("代码", ""),
+                    "名称": item.get("名称", ""),
+                    "最近1个月累计涨跌幅": item.get("最近1个月累计涨跌幅", "N/A"),
+                    "最近3个月累计涨跌幅": item.get("最近3个月累计涨跌幅", "N/A"),
+                    "最近6个月累计涨跌幅": item.get("最近6个月累计涨跌幅", "N/A"),
+                    "今年以来累计涨跌幅": item.get("今年以来累计涨跌幅", "N/A")
+                }
+                formatted_list.append(formatted_item)
+                
+            return formatted_list
+
+        try:
+            logger.info(f"获取市场表现数据: secucode={secucode}")
+            
+            # 获取原始数据
+            raw_data = data_source.get_market_performance(secucode)
+            
+            if not raw_data:
+                return "未找到市场表现数据"
+            
+            # 格式化数据
+            formatted_data = _format_market_performance_data(raw_data)
+            
+            # 转换为Markdown表格
+            table = format_list_to_markdown_table(formatted_data)
+            
+            # 获取股票名称
+            stock_name = ""
+            if raw_data and isinstance(raw_data, list) and len(raw_data) > 0:
+                stock_name = raw_data[0].get("SECURITY_NAME_ABBR", "")
+            
+            return f"## {stock_name}({secucode})市场表现数据\n\n{table}\n\n💡 显示{stock_name}与沪深300指数及所属行业板块的涨跌对比"
+
+        except Exception as e:
+            logger.error(f"工具执行出错: {e}")
+            return f"执行失败: {str(e)}"
+
     logger.info("市场板块行情工具已注册")
