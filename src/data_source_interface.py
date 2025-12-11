@@ -433,3 +433,17 @@ class FinancialDataInterface(ABC):
 
         """
         pass
+
+    @abstractmethod
+    def get_historical_billboard_data(self, stock_code: str) -> List[Dict]:
+        """
+        获取龙虎榜上榜历史数据（历次上榜）
+
+        Args:
+            stock_code: 股票代码，如 688041
+
+        Returns:
+            成功时返回龙虎榜历史数据列表，每个元素是一个字典
+
+        """
+        pass

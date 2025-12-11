@@ -140,3 +140,6 @@ class WebCrawlerDataSource(FinancialDataInterface):
 
     def get_billboard_data(self, trade_date: str, page_size: int = 10) -> List[Dict]:
         return self.market_spider.get_billboard_data(trade_date, page_size)
+
+    def get_historical_billboard_data(self, stock_code: str) -> List[Dict]:
+        return self.market_spider.get_historical_billboard_data(stock_code)

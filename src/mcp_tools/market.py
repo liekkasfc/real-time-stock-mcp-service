@@ -328,4 +328,117 @@ def register_market_tools(app: FastMCP, data_source: FinancialDataInterface):
             logger.error(f"工具执行出错: {e}")
             return f"执行失败: {str(e)}"
 
+    @app.tool()
+    def get_stock_billboard_data(stock_code: str) -> str:
+        """
+        获取龙虎榜上榜历史数据（历次上榜）
+
+        获取指定股票的历史龙虎榜数据，包括历次上榜的详细信息。
+
+        Args:
+            stock_code: 股票代码，数字后带上交易所代码，格式如688041.SH
+
+        Returns:
+            格式化的龙虎榜上榜历史数据，以Markdown表格形式展示
+
+        Examples:
+            - get_historical_billboard_data("688041.SH")
+        """
+        def _format_stock_billboard_data(raw_data: List[Dict]) -> List[Dict]:
+            """
+            格式化龙虎榜上榜历史数据
+
+            Args:
+                raw_data: 原始龙虎榜历史数据
+
+            Returns:
+                格式化后的龙虎榜历史数据列表
+            """
+            formatted_data = []
+            
+            for item in raw_data:
+                # 处理交易日期
+                trade_date = item.get("TRADE_DATE", "")
+                if " " in trade_date:
+                    trade_date = trade_date.split(" ")[0]
+                
+                # 处理价格数据
+                close_price = item.get("CLOSE_PRICE", 0)
+                change_rate = item.get("CHANGE_RATE", 0)
+                
+                # 处理后续涨跌幅数据
+                d1_change = item.get("D1_CLOSE_ADJCHRATE", 0)
+                d2_change = item.get("D2_CLOSE_ADJCHRATE", 0)
+                d3_change = item.get("D3_CLOSE_ADJCHRATE", 0)
+                d5_change = item.get("D5_CLOSE_ADJCHRATE", 0)
+                d10_change = item.get("D10_CLOSE_ADJCHRATE", 0)
+                d20_change = item.get("D20_CLOSE_ADJCHRATE", 0)
+                d30_change = item.get("D30_CLOSE_ADJCHRATE", 0)
+                
+                # 处理资金数据
+                net_buy_amt = item.get("NET_BUY_AMT", 0)
+                net_sell_amt = item.get("NET_SELL_AMT", 0)
+                net_operatedept_amt = item.get("NET_OPERATEDEPT_AMT", 0)
+                
+                # 解读说明
+                explain = item.get("EXPLAIN", "")
+                
+                formatted_item = {
+                    "日期": trade_date,
+                    "收盘价": f"{close_price:.2f}元" if close_price else "N/A",
+                    "涨跌幅": f"{'+' if change_rate >= 0 else ''}{change_rate:.2f}%",
+                    "上榜原因": explain,
+                    "后1日涨跌幅": f"{'+' if d1_change >= 0 else ''}{d1_change:.2f}%",
+                    "后2日涨跌幅": f"{'+' if d2_change >= 0 else ''}{d2_change:.2f}%",
+                    "后3日涨跌幅": f"{'+' if d3_change >= 0 else ''}{d3_change:.2f}%",
+                    "后5日涨跌幅": f"{'+' if d5_change >= 0 else ''}{d5_change:.2f}%",
+                    "后10日涨跌幅": f"{'+' if d10_change >= 0 else ''}{d10_change:.2f}%",
+                    "后20日涨跌幅": f"{'+' if d20_change >= 0 else ''}{d20_change:.2f}%",
+                    "后30日涨跌幅": f"{'+' if d30_change >= 0 else ''}{d30_change:.2f}%",
+                    "营业部买入金额": format_large_number(net_buy_amt) + "元" if net_buy_amt else "N/A",
+                    "营业部卖出金额": format_large_number(net_sell_amt) + "元" if net_sell_amt else "N/A",
+                    "营业部实际净买额": format_large_number(net_operatedept_amt) + "元" if net_operatedept_amt else "N/A"
+                }
+                
+                formatted_data.append(formatted_item)
+            
+            return formatted_data
+
+        try:
+            logger.info(f"获取龙虎榜历史数据: stock_code={stock_code}")
+            
+            # 初始化爬虫
+            from src.crawler.market import MarketSpider
+            spider = MarketSpider()
+            
+            # 获取原始数据
+            raw_data = spider.get_stock_billboard_data(stock_code)
+            
+            # 检查是否有错误信息
+            if raw_data and "error" in raw_data[0]:
+                return f"获取龙虎榜上榜历史记录失败: {raw_data[0]['error']}"
+            
+            if not raw_data:
+                return "未找到龙虎榜上榜历史记录"
+            
+            # 格式化数据
+            formatted_data = _format_stock_billboard_data(raw_data)
+            
+            # 转换为Markdown表格
+            table = format_list_to_markdown_table(formatted_data)
+            
+            # 获取股票名称
+            stock_name = ""
+            if raw_data and isinstance(raw_data, list) and len(raw_data) > 0:
+                stock_name = raw_data[0].get("SECURITY_NAME_ABBR", "")
+            
+            # 添加说明
+            note = f"\n\n💡 显示{stock_name}({stock_code})历史龙虎榜上榜记录，共{len(formatted_data)}条记录"
+            
+            return f"## {stock_name}({stock_code})历史龙虎榜上榜记录\n\n{table}{note}"
+
+        except Exception as e:
+            logger.error(f"工具执行出错: {e}")
+            return f"执行失败: {str(e)}"
+
     logger.info("市场板块行情工具已注册")

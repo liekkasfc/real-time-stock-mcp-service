@@ -117,3 +117,36 @@ class MarketSpider(EastMoneyBaseSpider):
             return [{"error": response.get("message", "未知错误")}]
         else:
             return [{"error": "网络请求失败"}]
+    
+    def get_stock_billboard_data(self, stock_code: str) -> list[dict]:
+        """
+        获取股票历次上榜记录
+        
+        :param stock_code: 股票代码，数字后带上交易所代码，格式如688041.SH
+        :return: 包含龙虎榜历史数据或错误信息的列表
+        """
+        params = {
+            "sortColumns": "TRADE_DATE,TRADE_DATE",
+            "sortTypes": "-1,-1",
+            "pageSize": 10,
+            "pageNumber": "1",
+            "reportName": "RPT_BILLBOARD_PERFORMANCEHIS",
+            "columns": "ALL",
+            "source": "WEB",
+            "client": "WEB",
+            "callback": self._generate_callback(),
+            "_": str(self._timestamp_ms())
+        }
+        # 移除股票代码后缘
+        stock_code = stock_code.split(".")[0]
+        if stock_code:
+            params["filter"] = f"(SECURITY_CODE=\"{stock_code}\")"
+
+        response = self._get_jsonp(self.billboard_url, params)
+        
+        if response and response.get("result") and response["result"].get("data"):
+            return response["result"]["data"]
+        elif response:
+            return [{"error": response.get("message", "未知错误")}]
+        else:
+            return [{"error": "网络请求失败"}]
