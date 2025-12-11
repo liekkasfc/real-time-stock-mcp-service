@@ -205,19 +205,28 @@ def register_valuation_tools(app: FastMCP, data_source: FinancialDataInterface):
                         return f"{float(value):.2f}"
                     except (ValueError, TypeError):
                         return str(value)
-                
+
                 formatted_item = {
                     "证券代码": item.get("CORRE_SECURITY_CODE", "N/A"),
                     "证券名称": item.get("CORRE_SECURITY_NAME", "N/A"),
-                    "营业收入增长率(24A)": format_value(item.get("YYSRTB")),
-                    "每股收益增长率(24A)": format_value(item.get("MGSYTB")),
-                    "净利润增长率(24A)": format_value(item.get("JLRTB")),
+                    "基本每股收益增长率": format_value(item.get("MGSYTB")),
+                    "基本每股收益3年复合增长率": format_value(item.get("MGSY_3Y")),
+                    "基本每股收益增长率(TTM)": format_value(item.get("MGSYTTM")),
+                    "基本每股收益增长率(第1年)": format_value(item.get("MGSY_1E")),
+                    "基本每股收益增长率(第2年)": format_value(item.get("MGSY_2E")),
+                    "基本每股收益增长率(第3年)": format_value(item.get("MGSY_3E")),
+                    "营业收入增长率": format_value(item.get("YYSRTB")),
                     "营业收入3年复合增长率": format_value(item.get("YYSR_3Y")),
-                    "每股收益3年复合增长率": format_value(item.get("MGSY_3Y")),
-                    "净利润3年复合增长率": format_value(item.get("JLR_3Y")),
                     "营业收入增长率(TTM)": format_value(item.get("YYSRTTM")),
-                    "每股收益增长率(TTM)": format_value(item.get("MGSYTTM")),
+                    "营业收入增长率(第1年)": format_value(item.get("YYSR_1E")),
+                    "营业收入增长率(第2年)": format_value(item.get("YYSR_2E")),
+                    "营业收入增长率(第3年)": format_value(item.get("YYSR_3E")),
+                    "净利润增长率": format_value(item.get("JLRTB")),
+                    "净利润3年复合增长率": format_value(item.get("JLR_3Y")),
                     "净利润增长率(TTM)": format_value(item.get("JLRTTM")),
+                    "净利润增长率(第1年)": format_value(item.get("JLR_1E")),
+                    "净利润增长率(第2年)": format_value(item.get("JLR_2E")),
+                    "净利润增长率(第3年)": format_value(item.get("JLR_3E")),
                     "行业排名": item.get("PAIMING"),
                 }
                 table_data.append(formatted_item)
