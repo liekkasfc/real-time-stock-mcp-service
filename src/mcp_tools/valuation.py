@@ -326,4 +326,87 @@ def register_valuation_tools(app: FastMCP, data_source: FinancialDataInterface):
             logger.error(f"工具执行出错: {e}")
             return f"执行失败: {str(e)}"
 
+    @app.tool()
+    def get_valuation_comparison(stock_code: str) -> str:
+        """
+        获取估值比较数据
+
+        Args:
+            stock_code: 股票代码，要在数字后加上交易所代码，格式如600000.SH
+
+        Returns:
+            估值比较数据的Markdown表格
+
+        Examples:
+            - get_valuation_comparison("600000.SH")
+        """
+        try:
+            logger.info(f"获取估值比较数据: {stock_code}")
+
+            # 获取估值比较数据
+            raw_data = data_source.get_valuation_comparison(stock_code)
+
+            # 检查是否有错误信息
+            if raw_data is None:
+                return f"未找到股票代码 '{stock_code}' 的估值比较数据"
+            
+            if isinstance(raw_data, list) and len(raw_data) > 0 and "error" in raw_data[0]:
+                error_msg = raw_data[0]["error"]
+                return f"获取估值比较数据失败: {error_msg}"
+            
+            # 检查是否为空数据
+            if not raw_data:
+                return f"未找到股票 '{stock_code}' 的估值比较数据"
+            
+            # 格式化为表格
+            table_data = []
+            for item in raw_data:
+                # 格式化数值字段，保留两位小数
+                def format_value(value):
+                    if value is None or value == "":
+                        return "N/A"
+                    try:
+                        return f"{float(value):.2f}"
+                    except (ValueError, TypeError):
+                        return str(value)
+
+                formatted_item = {
+                    "证券代码": item.get("CORRE_SECURITY_CODE", "N/A"),
+                    "证券名称": item.get("CORRE_SECURITY_NAME", "N/A"),
+                    "市盈率PE(年度)": format_value(item.get("PE")),
+                    "市盈率PE(TTM)": format_value(item.get("PE_TTM")),
+                    "市盈率PE(第一年预测)": format_value(item.get("PE_1Y")),
+                    "市盈率PE(第二年预测)": format_value(item.get("PE_2Y")),
+                    "市盈率PE(第三年预测)": format_value(item.get("PE_3Y")),
+                    "市销率PS(年度)": format_value(item.get("PS")),
+                    "市销率PS(TTM)": format_value(item.get("PS_TTM")),
+                    "市销率PS(第一年预测)": format_value(item.get("PS_1Y")),
+                    "市销率PS(第二年预测)": format_value(item.get("PS_2Y")),
+                    "市销率PS(第三年预测)": format_value(item.get("PS_3Y")),
+                    "市净率PB(年度)": format_value(item.get("PB")),
+                    "市净率PB(MRQ)": format_value(item.get("PB_MRQ")),
+                    "市现率PCE(年度)": format_value(item.get("PCE")),
+                    "市现率PCE(TTM)": format_value(item.get("PCE_TTM")),
+                    "市现率PCF(年度)": format_value(item.get("PCF")),
+                    "市现率PCF(TTM)": format_value(item.get("PCF_TTM")),
+                    "企业倍数EV/EBITDA(年度)": format_value(item.get("QYBS")),
+                    "PEG": format_value(item.get("PEG")),
+                    "行业排名": item.get("PAIMING", "N/A"),
+                }
+                table_data.append(formatted_item)
+            
+            result = f"**估值比较数据 (共{len(table_data)}条记录)**\n\n"
+            result += format_list_to_markdown_table(table_data)
+            
+            # 添加报告日期信息
+            if raw_data and raw_data[0].get("REPORT_DATE"):
+                report_date = raw_data[0]["REPORT_DATE"].split(" ")[0]
+                result += f"\n\n数据截止日期: {report_date}"
+            
+            return result
+
+        except Exception as e:
+            logger.error(f"工具执行出错: {e}")
+            return f"执行失败: {str(e)}"
+
     logger.info("估值分析工具已注册")

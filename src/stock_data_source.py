@@ -149,3 +149,6 @@ class WebCrawlerDataSource(FinancialDataInterface):
 
     def get_dupont_analysis_comparison(self, stock_code: str) -> Optional[List[Dict[Any, Any]]]:
         return self.valuation_crawler.get_dupont_analysis_comparison(stock_code)
+
+    def get_valuation_comparison(self, stock_code: str) -> Optional[List[Dict[Any, Any]]]:
+        return self.valuation_crawler.get_valuation_comparison(stock_code)
