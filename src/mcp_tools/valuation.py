@@ -104,19 +104,14 @@ def register_valuation_tools(app: FastMCP, data_source: FinancialDataInterface):
             return f"执行失败: {str(e)}"
     
     @app.tool()
-    def get_valuation_analysis(stock_code: str, indicator_type: int = 1, date_type: int = 3) -> str:
+    def get_valuation_analysis(stock_code: str, date_type: int = 3) -> str:
         """
         获取估值分析数据
 
-        获取指定股票的估值分析数据，包括当前值和历史分位数。
+        获取指定股票的所有估值分析数据，包括市盈率、市净率、市销率和市现率的当前值和历史分位数。
 
         Args:
             stock_code: 股票代码，要在数字后加上交易所代码，格式如300750.SZ
-            indicator_type: 指标类型
-                          1 - 市盈率TTM
-                          2 - 市净率MRQ
-                          3 - 市销率TTM
-                          4 - 市现率TTM
             date_type: 时间周期类型
                      1 - 1年
                      2 - 3年
@@ -124,40 +119,46 @@ def register_valuation_tools(app: FastMCP, data_source: FinancialDataInterface):
                      4 - 10年
 
         Returns:
-            估值分析数据的Markdown表格
+            所有估值分析数据的Markdown表格
 
         Examples:
-            - get_valuation_analysis("300750.SZ", 1, 3)
-            - get_valuation_analysis("300750.SZ", 2, 2)
+            - get_valuation_analysis("300750.SZ", 3)
+            - get_valuation_analysis("300750.SZ", 2)
         """
         try:
-            logger.info(f"获取估值分析数据: {stock_code}, 指标类型: {indicator_type}, 时间周期: {date_type}")
+            logger.info(f"获取估值分析数据: {stock_code}, 时间周期: {date_type}")
 
             # 获取估值分析数据
-            raw_data = data_source.get_valuation_analysis(stock_code, indicator_type, date_type)
-            
+            raw_data = data_source.get_valuation_analysis(stock_code, date_type)
+
             # 检查是否有错误信息
             if raw_data is None:
                 return f"未找到股票代码 '{stock_code}' 的估值分析数据"
             
-            if "error" in raw_data:
-                error_msg = raw_data["error"]
+            if isinstance(raw_data, list) and len(raw_data) > 0 and "error" in raw_data[0]:
+                error_msg = raw_data[0]["error"]
                 return f"获取估值分析数据失败: {error_msg}"
             
+            # 交易日期
+            trade_date = raw_data[0]["TRADE_DATE"].split(" ")[0] if raw_data and raw_data[0].get("TRADE_DATE") else "N/A"
+            # 统计周期
+            statistics_cycle = raw_data[0]["STATISTICS_CYCLE"] if raw_data and raw_data[0].get("STATISTICS_CYCLE") else "N/A"
+
             # 格式化为表格
-            table_data = [{
-                "股票代码": raw_data.get("SECUCODE", "N/A"),
-                "交易日期": raw_data.get("TRADE_DATE", "N/A")[:10] if raw_data.get("TRADE_DATE") else "N/A",
-                "指标类型": raw_data.get("INDICATOR_TYPE", "N/A"),
-                "指标值": f"{raw_data.get('INDICATOR_VALUE', 'N/A'):.4f}" if raw_data.get('INDICATOR_VALUE') is not None else 'N/A',
-                "统计周期": raw_data.get("STATISTICS_CYCLE", "N/A"),
-                "30%分位数": f"{raw_data.get('PERCENTILE_THIRTY', 'N/A'):.4f}" if raw_data.get('PERCENTILE_THIRTY') is not None else 'N/A',
-                "中位数(50%)": f"{raw_data.get('PERCENTILE_FIFTY', 'N/A'):.4f}" if raw_data.get('PERCENTILE_FIFTY') is not None else 'N/A',
-                "70%分位数": f"{raw_data.get('PERCENTILE_SEVENTY', 'N/A'):.4f}" if raw_data.get('PERCENTILE_SEVENTY') is not None else 'N/A'
-            }]
+            table_data = []
+            for indicator_data in raw_data:
+                formatted_row = {
+                    "指标类型": indicator_data.get("INDICATOR_TYPE", "N/A"),
+                    "指标值": f"{indicator_data.get('INDICATOR_VALUE', 'N/A'):.4f}" if indicator_data.get('INDICATOR_VALUE') is not None else 'N/A',
+                    "30%分位数": f"{indicator_data.get('PERCENTILE_THIRTY', 'N/A'):.4f}" if indicator_data.get('PERCENTILE_THIRTY') is not None else 'N/A',
+                    "中位数(50%)": f"{indicator_data.get('PERCENTILE_FIFTY', 'N/A'):.4f}" if indicator_data.get('PERCENTILE_FIFTY') is not None else 'N/A',
+                    "70%分位数": f"{indicator_data.get('PERCENTILE_SEVENTY', 'N/A'):.4f}" if indicator_data.get('PERCENTILE_SEVENTY') is not None else 'N/A'
+                }
+                table_data.append(formatted_row)
             
-            result = "**估值分析数据**\n\n"
+            result = f"**估值分析数据 **\n\n"
             result += format_list_to_markdown_table(table_data)
+            result += f"\n截至 {trade_date}， 统计周期:{statistics_cycle} "
             
             return result
 

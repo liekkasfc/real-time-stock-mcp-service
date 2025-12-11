@@ -111,8 +111,8 @@ class WebCrawlerDataSource(FinancialDataInterface):
     def get_business_review(self, stock_code: str) -> Optional[Dict[Any, Any]]:
         return self.fundamental_crawler.get_business_review(stock_code)
 
-    def get_valuation_analysis(self, stock_code: str, indicator_type: int = 1, date_type: int = 3) -> Optional[Dict[Any, Any]]:
-        return self.valuation_crawler.get_valuation_analysis(stock_code, indicator_type, date_type)
+    def get_valuation_analysis(self, stock_code: str, date_type: int = 3) -> Optional[List[Dict[Any, Any]]]:
+        return self.valuation_crawler.get_valuation_analysis(stock_code, date_type)
 
     def get_institutional_rating(self, stock_code: str, begin_time: str, end_time: str) -> Optional[List[Dict[Any, Any]]]:
         return self.valuation_crawler.get_institutional_rating(stock_code, begin_time, end_time)
