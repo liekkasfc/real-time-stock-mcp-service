@@ -216,7 +216,7 @@ def register_market_tools(app: FastMCP, data_source: FinancialDataInterface):
             return f"执行失败: {str(e)}"
 
     @app.tool()
-    def get_billboard_data(trade_date: str = None) -> str:
+    def get_billboard_data(trade_date: str, page_size: int = 10) -> str:
         """
         获取龙虎榜数据
 
@@ -224,13 +224,14 @@ def register_market_tools(app: FastMCP, data_source: FinancialDataInterface):
 
         Args:
             trade_date: 交易日期，格式为 YYYY-MM-DD。
+            page_size: 返回数据条数，默认为10条。
 
         Returns:
             格式化的龙虎榜数据，以Markdown表格形式展示
 
         Examples:
-            - get_billboard_data()
-            - get_billboard_data("2025-12-10")
+            - get_billboard_data("2025-11-28")
+            - get_billboard_data("2025-11-28", 20)
         """
         def _format_billboard_data(raw_data: List[Dict]) -> List[Dict]:
             """
@@ -269,12 +270,6 @@ def register_market_tools(app: FastMCP, data_source: FinancialDataInterface):
                 deal_net_ratio = item.get("DEAL_NET_RATIO", 0)  # 净买额占总成交比
                 deal_amount_ratio = item.get("DEAL_AMOUNT_RATIO", 0)  # 成交额占总成交比
                 
-                # 后续涨跌幅
-                d1_change = item.get("D1_CLOSE_ADJCHRATE", 0)  # 1日后涨跌幅
-                d2_change = item.get("D2_CLOSE_ADJCHRATE", 0)  # 2日后涨跌幅
-                d5_change = item.get("D5_CLOSE_ADJCHRATE", 0)  # 5日后涨跌幅
-                d10_change = item.get("D10_CLOSE_ADJCHRATE", 0)  # 10日后涨跌幅
-                
                 # 解读说明
                 explain = item.get("EXPLAIN", "")
                 explanation = item.get("EXPLANATION", "")  # 上榜原因
@@ -309,7 +304,7 @@ def register_market_tools(app: FastMCP, data_source: FinancialDataInterface):
             spider = MarketSpider()
             
             # 获取原始数据
-            raw_data = spider.get_billboard_data(trade_date)
+            raw_data = spider.get_billboard_data(trade_date, page_size)
             
             # 检查是否有错误信息
             if raw_data and "error" in raw_data[0]:
@@ -325,10 +320,9 @@ def register_market_tools(app: FastMCP, data_source: FinancialDataInterface):
             table = format_list_to_markdown_table(formatted_data)
             
             # 添加说明
-            date_note = f"交易日期: {trade_date}" if trade_date else "未知"
-            note = f"\n\n💡 显示涨幅前10的龙虎榜股票，{date_note}"
+            note = f"\n\n💡 显示涨幅前{page_size}的龙虎榜股票，交易日期: {trade_date}"
             
-            return f"## 涨幅前10的龙虎榜数据\n\n{table}{note}"
+            return f"## 涨幅前{page_size}的龙虎榜数据\n\n{table}{note}"
 
         except Exception as e:
             logger.error(f"工具执行出错: {e}")

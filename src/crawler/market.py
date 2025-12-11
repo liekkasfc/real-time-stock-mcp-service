@@ -82,17 +82,18 @@ class MarketSpider(EastMoneyBaseSpider):
         else:
             return None
     
-    def get_billboard_data(self, trade_date: str = None) -> list[dict]:
+    def get_billboard_data(self, trade_date: str, page_size: int = 10) -> list[dict]:
         """
         获取龙虎榜数据
         
         :param trade_date: 交易日期，格式为 YYYY-MM-DD
+        :param page_size: 返回数据条数，默认为10条
         :return: 包含龙虎榜数据或错误信息的字典
         """
         params = {
             "sortColumns": "CHANGE_RATE,TRADE_DATE,SECURITY_CODE",
             "sortTypes": "-1,-1,1",
-            "pageSize": "10",
+            "pageSize": str(page_size),
             "pageNumber": "1",
             "reportName": "RPT_DAILYBILLBOARD_DETAILSNEW",
             "columns": "SECURITY_CODE,SECUCODE,SECURITY_NAME_ABBR,TRADE_DATE,EXPLAIN,CLOSE_PRICE,CHANGE_RATE,"

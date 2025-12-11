@@ -420,12 +420,13 @@ class FinancialDataInterface(ABC):
         pass
 
     @abstractmethod
-    def get_billboard_data(self, trade_date: str = None) -> List[Dict]:
+    def get_billboard_data(self, trade_date: str, page_size: int = 10) -> List[Dict]:
         """
         获取龙虎榜数据
 
         Args:
             trade_date: 交易日期，格式为 YYYY-MM-DD
+            page_size: 返回数据条数，默认为10条
 
         Returns:
             成功时返回龙虎榜数据列表，每个元素是一个字典
