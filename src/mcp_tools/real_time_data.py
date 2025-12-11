@@ -24,8 +24,6 @@ def register_real_time_data_tools(app: FastMCP, data_source: FinancialDataInterf
     @app.tool()
     def get_real_time_data(symbol: str) -> str:
         """
-        获取实时股票数据
-
         获取指定股票的实时行情数据，包括价格、涨跌幅、成交量等信息。
 
         Args:

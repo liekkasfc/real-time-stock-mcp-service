@@ -25,8 +25,6 @@ def register_valuation_tools(app: FastMCP, data_source: FinancialDataInterface):
         """
         获取机构评级数据
 
-        获取指定股票在一定时间范围内的机构评级数据。
-
         Args:
             stock_code: 股票代码，纯数字，如688041
             begin_time: 开始时间，格式如2025-10-23
@@ -106,8 +104,6 @@ def register_valuation_tools(app: FastMCP, data_source: FinancialDataInterface):
     @app.tool()
     def get_valuation_analysis(stock_code: str, date_type: int = 3) -> str:
         """
-        获取估值分析数据
-
         获取指定股票的所有估值分析数据，包括市盈率、市净率、市销率和市现率的当前值和历史分位数。
 
         Args:

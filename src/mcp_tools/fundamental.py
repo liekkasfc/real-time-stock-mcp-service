@@ -25,7 +25,6 @@ def register_fundamental_tools(app: FastMCP, data_source: FinancialDataInterface
         """
         获取主营业务范围
 
-        获取指定股票的主营业务范围信息。
 
         Args:
             stock_code: 股票代码，要在数字后加上交易所代码，格式如300750.SZ
@@ -63,8 +62,6 @@ def register_fundamental_tools(app: FastMCP, data_source: FinancialDataInterface
     def get_main_business(stock_code: str) -> str:
         """
         获取主营构成分析
-
-        获取指定股票的主营构成分析数据。
 
         Args:
             stock_code: 股票代码，要在数字后加上交易所代码，格式如300750.SZ
@@ -150,8 +147,6 @@ def register_fundamental_tools(app: FastMCP, data_source: FinancialDataInterface
         """
         获取经营评述
 
-        获取指定股票的经营评述信息。
-
         Args:
             stock_code: 股票代码，要在数字后加上交易所代码，格式如300750.SZ
 
@@ -192,8 +187,6 @@ def register_fundamental_tools(app: FastMCP, data_source: FinancialDataInterface
     def get_main_financial_data(stock_code: str) -> str:
         """
         获取公司主要财务数据
-
-        获取指定股票的主要财务和业务数据。
 
         Args:
             stock_code: 股票代码，要在数字后加上交易所代码，格式如300750.SZ

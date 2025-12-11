@@ -23,8 +23,6 @@ def register_search_tools(app: FastMCP, data_source: FinancialDataInterface):
     @app.tool()
     def get_last_trading_day() -> str:
         """
-        获取最近交易日信息
-
         获取最新的交易日历信息，包括最近的交易日和休市日。
 
         Returns:
@@ -86,9 +84,7 @@ def register_search_tools(app: FastMCP, data_source: FinancialDataInterface):
     @app.tool()
     def get_stock_search(keyword: str) -> str:
         """
-        搜索股票信息
-
-        根据关键字搜索相关的股票信息。
+        搜索股票信息，根据关键字搜索相关的股票信息。
 
         Args:
             keyword: 搜索关键字，可以是股票代码、股票名称等

@@ -26,8 +26,6 @@ def register_market_tools(app: FastMCP, data_source: FinancialDataInterface):
     @app.tool()
     def get_plate_quotation(plate_type: int = 2, page_size: int = 10) -> str:
         """
-        获取板块行情数据
-
         获取东方财富网的涨跌幅前N板块行情数据，包括行业板块、概念板块、地域板块等。
 
         Args:
@@ -121,8 +119,6 @@ def register_market_tools(app: FastMCP, data_source: FinancialDataInterface):
     @app.tool()
     def get_historical_fund_flow(stock_code: str, limit: int = 10) -> str:
         """
-        获取历史资金流向数据
-
         获取指定股票最近N个交易日的资金流向数据，包括主力资金、散户资金、中单资金等的流入流出情况。
 
         Args:
@@ -218,8 +214,6 @@ def register_market_tools(app: FastMCP, data_source: FinancialDataInterface):
     @app.tool()
     def get_billboard_data(trade_date: str, page_size: int = 10) -> str:
         """
-        获取龙虎榜数据
-
         获取指定交易日的龙虎榜数据，包括股票基本信息、行情数据、资金流向等。
 
         Args:
@@ -329,7 +323,6 @@ def register_market_tools(app: FastMCP, data_source: FinancialDataInterface):
         """
         获取龙虎榜上榜历史数据（历次上榜）
 
-        获取指定股票的历史龙虎榜数据，包括历次上榜的详细信息。
 
         Args:
             stock_code: 股票代码，数字后带上交易所代码，格式如688041.SH

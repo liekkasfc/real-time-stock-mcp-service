@@ -39,8 +39,6 @@ def register_financial_analysis_tools(app: FastMCP, data_source: FinancialDataIn
     @app.tool()
     def get_financial_summary(stock_code: str, date_type_code: str = "004") -> str:
         """
-        获取业绩概况数据
-
         获取指定股票的业绩概况数据，包括历史各期的营业收入、净利润等财务指标。
 
         Args:
@@ -123,8 +121,6 @@ def register_financial_analysis_tools(app: FastMCP, data_source: FinancialDataIn
     @app.tool()
     def get_holder_number(stock_code: str) -> str:
         """
-        获取股东户数数据
-
         获取指定股票的股东户数数据，包括历史各期的股东人数及对应的收盘价。
 
         Args:
@@ -181,8 +177,6 @@ def register_financial_analysis_tools(app: FastMCP, data_source: FinancialDataIn
     @app.tool()
     def get_industry_profit_comparison(stock_code: str) -> str:
         """
-        获取同行业公司盈利对比数据
-
         获取指定股票的同行业公司盈利对比数据，包括同行业公司的基本财务和盈利指标。
 
         Args:
@@ -298,8 +292,6 @@ def register_financial_analysis_tools(app: FastMCP, data_source: FinancialDataIn
     @app.tool()
     def get_financial_ratios(stock_code: str) -> str:
         """
-        获取财务比率数据
-
         获取指定股票的财务比率数据，包括盈利能力、偿债能力、运营能力等关键财务指标。
 
         Args:
