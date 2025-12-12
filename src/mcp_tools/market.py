@@ -919,6 +919,7 @@ def register_market_tools(app: FastMCP, data_source: FinancialDataInterface):
                 title = item.get("title", "")
                 org_sname = item.get("orgSName", "")
                 publish_date = item.get("publishDate", "")
+                reports_count = item.get("count", 0)
                 
                 # 处理发布日期，只保留日期部分
                 if publish_date and " " in publish_date:
@@ -927,6 +928,7 @@ def register_market_tools(app: FastMCP, data_source: FinancialDataInterface):
                 formatted_item = {
                     "报告标题": title,
                     "机构名称": org_sname,
+                    "近一月机构宏观研报数量": reports_count,
                     "发布时间": publish_date
                 }
 
