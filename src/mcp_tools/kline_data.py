@@ -7,7 +7,7 @@ import logging
 from typing import List, Optional, Dict
 from mcp.server.fastmcp import FastMCP
 from ..data_source_interface import FinancialDataInterface
-from ..utils.utils import format_number
+from ..utils.utils import format_number, format_large_number
 from ..utils.markdown_formatter import format_list_to_markdown_table
 
 logger = logging.getLogger(__name__)
@@ -241,7 +241,7 @@ def register_kline_tools(app: FastMCP, data_source: FinancialDataInterface):
         frequency: str = "d"
     ) -> str:
         """
-        获取指定股票在指定日期范围内的K线数据。
+        获取指定股票在指定日期范围内的K线数据，，支持A股，H股，大盘。
 
         Args:
             stock_code: 股票代码，要在数字后加上交易所代码，格式如300750.SZ
@@ -298,8 +298,8 @@ def register_kline_tools(app: FastMCP, data_source: FinancialDataInterface):
                     '最高': format_number(high_price),
                     '最低': format_number(low_price),
                     '涨跌幅': f"{'+' if change_pct > 0 else ''}{change_pct:.2f}%",
-                    '成交量': format_number(volume, 0),
-                    '成交额': format_number(amount, 0),
+                    '成交量': format_large_number(volume),
+                    '成交额': format_large_number(amount),
                     '振幅': f"{amplitude:.2f}%",
                     '涨跌额': format_number(change_amount),
                     '换手率': f"{turnover_rate:.2f}%"
@@ -321,7 +321,7 @@ def register_kline_tools(app: FastMCP, data_source: FinancialDataInterface):
         frequency: str = "d"
     ) -> str:
         """
-        获取技术指标数据
+        获取技术指标数据，支持A股，H股，大盘
 
 
         Args:
