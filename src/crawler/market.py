@@ -214,6 +214,31 @@ class MarketSpider(EastMoneyBaseSpider):
         else:
             return None
     
+    def get_current_count_changes(self) -> Optional[List[Dict]]:
+        """
+        获取当日异动对数据对比情况
+        这个函数有问题待修复，只获取到了一个对象[{'t': 4, 'ct': 98}]
+        链接：https://quote.eastmoney.com/changes/?from=center
+
+        :return: 当日异动对数据列表
+        """
+        count_changes_url = "https://push2ex.eastmoney.com/getStockCountChanges"
+        
+        params = {
+            "type": "4,8,16,32,64,128,8193,8194,8201,8204,8202,8203,8207,8208,8209,8210,8211,8212,8213,8214,8215,8216",
+            "cb": self._generate_callback(),
+            "ut": "7eea3edcaed734bea9cbfc24409ed989",
+            "dpt": "wzchanges",
+            "_": str(self._timestamp_ms())
+        }
+
+        response = self._get_jsonp(count_changes_url, params)
+        
+        if response and response.get("data") and response["data"].get("ydlist"):
+            return response["data"]["ydlist"]
+        else:
+            return None
+
     def get_market_performance(self, secucode: str) -> Optional[List[Dict]]:
         """
         获取股票市场表现数据

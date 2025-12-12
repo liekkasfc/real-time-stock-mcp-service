@@ -537,3 +537,17 @@ class FinancialDataInterface(ABC):
             DataSourceError: 当数据源出现错误时
         """
         pass
+
+    @abstractmethod
+    def get_current_count_changes(self) -> Optional[List[Dict[Any, Any]]]:
+        """
+        获取当日异动对数据对比情况
+
+        Returns:
+            当日异动对数据列表，每个元素是一个字典，包含异动对相关信息
+            如果没有找到数据或出错，返回包含错误信息的列表或者None
+
+        Raises:
+            DataSourceError: 当数据源出现错误时
+        """
+        pass

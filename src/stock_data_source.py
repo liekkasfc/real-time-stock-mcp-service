@@ -161,3 +161,6 @@ class WebCrawlerDataSource(FinancialDataInterface):
 
     def get_current_plate_changes(self, page_size: int = 10) -> Optional[List[Dict[Any, Any]]]:
         return self.market_spider.get_current_plate_changes(page_size)
+
+    def get_current_count_changes(self) -> Optional[List[Dict[Any, Any]]]:
+        return self.market_spider.get_current_count_changes()
