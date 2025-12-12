@@ -21,6 +21,7 @@ class WebCrawlerDataSource(FinancialDataInterface):
         self.valuation_crawler = None
         self.financial_analysis_crawler = None
         self.market_spider = None
+        self.smart_review_crawler = None
     
     def initialize(self) -> bool:
         try:
@@ -31,6 +32,7 @@ class WebCrawlerDataSource(FinancialDataInterface):
             from src.crawler.valuation_data import ValuationDataCrawler
             from src.crawler.financial_analysis import FinancialAnalysisCrawler
             from src.crawler.market import MarketSpider
+            from src.crawler.smart_review import SmartReviewCrawler
             self.kline_spider = KlineSpider()
             self.searcher = StockSearcher()
             self.real_time_spider = RealTimeDataSpider()
@@ -38,6 +40,7 @@ class WebCrawlerDataSource(FinancialDataInterface):
             self.valuation_crawler = ValuationDataCrawler()
             self.financial_analysis_crawler = FinancialAnalysisCrawler()
             self.market_spider = MarketSpider()
+            self.smart_review_crawler = SmartReviewCrawler()
             return True
         except Exception as e:
             return False
@@ -50,6 +53,7 @@ class WebCrawlerDataSource(FinancialDataInterface):
         self.valuation_crawler = None
         self.financial_analysis_crawler = None
         self.market_spider = None
+        self.smart_review_crawler = None
 
     def get_historical_k_data(
         self,
@@ -171,3 +175,6 @@ class WebCrawlerDataSource(FinancialDataInterface):
 
     def get_real_time_market_indices(self) -> List[Dict]:
         return self.real_time_spider.get_real_time_market_indices()
+        
+    def get_smart_score(self, stock_code: str) -> Optional[Dict[Any, Any]]:
+        return self.smart_review_crawler.get_smart_score(stock_code)

@@ -582,3 +582,19 @@ class FinancialDataInterface(ABC):
             DataSourceError: 当数据源出现错误时
         """
         pass
+
+    @abstractmethod
+    def get_smart_score(self, stock_code: str) -> Optional[Dict[Any, Any]]:
+        """
+        获取股票智能评分数据
+
+        Args:
+            stock_code: 股票代码，如 300750
+
+        Returns:
+            智能评分数据字典
+
+        Raises:
+            DataSourceError: 当数据源出现错误时
+        """
+        pass
