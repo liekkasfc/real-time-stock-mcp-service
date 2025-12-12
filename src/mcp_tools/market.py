@@ -885,4 +885,74 @@ def register_market_tools(app: FastMCP, data_source: FinancialDataInterface):
             logger.error(f"工具执行出错: {e}")
             return f"执行失败: {str(e)}"
 
+    @app.tool()
+    def get_macroeconomic_research(begin_time: str, 
+                                 end_time: str) -> str:
+        """
+        获取宏观研究报告数据，推荐填入最新的日期以紧跟时事
+
+        Args:
+            begin_time: 开始时间
+            end_time: 结束时间
+
+        Returns:
+            格式化的宏观研究报告数据，以Markdown表格形式展示
+
+        Examples:
+            - get_macroeconomic_research("2025-12-01", "2025-12-12")
+        """
+        
+        def _format_macroeconomic_research_data(raw_data: List[Dict]) -> List[Dict]:
+            """
+            格式化宏观研究报告数据
+
+            Args:
+                raw_data: 原始宏观研究报告数据
+
+            Returns:
+                格式化后的宏观研究报告数据列表
+            """
+            formatted_data = []
+
+            for item in raw_data:
+                # 提取关键信息
+                title = item.get("title", "")
+                org_sname = item.get("orgSName", "")
+                publish_date = item.get("publishDate", "")
+                
+                # 处理发布日期，只保留日期部分
+                if publish_date and " " in publish_date:
+                    publish_date = publish_date.split(" ")[0]
+                
+                formatted_item = {
+                    "报告标题": title,
+                    "机构名称": org_sname,
+                    "发布时间": publish_date
+                }
+
+                formatted_data.append(formatted_item)
+
+            return formatted_data
+
+        try:
+            logger.info("获取宏观研究报告数据")
+            
+            # 获取原始数据
+            raw_data = data_source.get_macroeconomic_research(begin_time, end_time)
+            
+            if not raw_data:
+                return "未找到宏观研究报告数据"
+            
+            # 格式化数据
+            formatted_data = _format_macroeconomic_research_data(raw_data)
+            
+            # 转换为Markdown表格
+            table = format_list_to_markdown_table(formatted_data)
+            
+            return f"## 宏观研究报告数据\n\n{table}\n\n💡 显示最近的宏观研究报告，时间范围从{begin_time}到{end_time}"
+
+        except Exception as e:
+            logger.error(f"工具执行出错: {e}")
+            return f"执行失败: {str(e)}"
+
     logger.info("市场板块行情工具已注册")

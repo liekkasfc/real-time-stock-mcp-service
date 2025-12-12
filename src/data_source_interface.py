@@ -551,3 +551,22 @@ class FinancialDataInterface(ABC):
             DataSourceError: 当数据源出现错误时
         """
         pass
+
+    @abstractmethod
+    def get_macroeconomic_research(self, begin_time: str, 
+                                  end_time: str) -> Optional[List[Dict[Any, Any]]]:
+        """
+        获取宏观研究报告数据
+
+        Args:
+            begin_time: 开始时间
+            end_time: 结束时间
+
+        Returns:
+            宏观研究报告数据列表，每个元素是一个字典，包含研究报告信息
+            如果没有找到数据或出错，返回包含错误信息的列表或者None
+
+        Raises:
+            DataSourceError: 当数据源出现错误时
+        """
+        pass

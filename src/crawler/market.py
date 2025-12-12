@@ -19,6 +19,7 @@ class MarketSpider(EastMoneyBaseSpider):
         self.fund_flow_url = "https://push2his.eastmoney.com/api/qt/stock/fflow/daykline/get"
         self.billboard_url = "https://datacenter-web.eastmoney.com/api/data/v1/get"
         self.bk_changes_url = "https://push2ex.eastmoney.com/getAllBKChanges"
+        self.macroeconomic_url = "https://reportapi.eastmoney.com/report/jg"
 
     def get_plate_quotation(self, plate_type: int = 2, page_size: int = 10) -> List[Dict]:
         """
@@ -237,6 +238,37 @@ class MarketSpider(EastMoneyBaseSpider):
         if response and response.get("data") and response["data"].get("ydlist"):
             return response["data"]["ydlist"]
         else:
+            return None
+
+    def get_macroeconomic_research(self, begin_time: str, end_time: str) -> Optional[List[Dict]]:
+        """
+        获取宏观研究报告数据
+        
+        :param begin_time: 开始时间
+        :param end_time: 结束时间
+        :return: 宏观研究报告数据列表
+        """
+        params = {
+            "pageSize": "100",
+            "beginTime": begin_time,
+            "endTime": end_time,
+            "pageNo": "1",
+            "qType": "3",
+            "p": "1",
+            "pageNum": "1",
+            "pageNumber": "1",
+            "fields": "",
+            "orgCode": "",
+            "author": "",
+            "_": str(self._timestamp_ms())
+        }
+
+        response = self._get_json(self.macroeconomic_url, params)
+        
+        if response and response.get("data"):
+            return response["data"]
+        else:
+            print(f"Response: {response}")
             return None
 
     def get_market_performance(self, secucode: str) -> Optional[List[Dict]]:

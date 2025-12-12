@@ -164,3 +164,7 @@ class WebCrawlerDataSource(FinancialDataInterface):
 
     def get_current_count_changes(self) -> Optional[List[Dict[Any, Any]]]:
         return self.market_spider.get_current_count_changes()
+
+    def get_macroeconomic_research(self, begin_time: str, 
+                                  end_time: str) -> Optional[List[Dict[Any, Any]]]:
+        return self.market_spider.get_macroeconomic_research(begin_time, end_time)
