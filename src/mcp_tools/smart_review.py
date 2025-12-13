@@ -5,7 +5,6 @@ src/mcp_tools/smart_review.py
 """
 
 import logging
-from typing import Dict, Any
 from mcp.server.fastmcp import FastMCP
 
 from src.data_source_interface import FinancialDataInterface
@@ -31,20 +30,19 @@ def register_smart_review_tools(app: FastMCP, data_source: FinancialDataInterfac
             # 调用数据源获取智能评分数据
             score_data = data_source.get_smart_score(stock_code)
 
-            # 格式化数据为易读形式
-            formatted_data = [{
-                "股票代码": score_data.get("SECUCODE", stock_code),
-                "评分": f"{score_data.get('TOTAL_SCORE', 0):.2f}",
-                "评分变化": f"{score_data.get('TOTAL_SCORE_CHANGE', 0):+.2f}",
-                "次日上涨概率": f"{score_data.get('RISE_1_PROBABILITY', 0):.2f}%",
-                "分析解读": score_data.get("WORDS_EXPLAIN", ""),
-                "分析时间": score_data.get("DIAGNOSE_TIME", ""),
-            }]
-            
-            # 转换为Markdown表格
-            markdown_table = format_list_to_markdown_table(formatted_data)
+
+            # 直接格式化为逐行显示
             result = f"**股票智能评分**\n\n"
-            result += markdown_table
+            result += f"股票代码：{score_data.get('SECUCODE', stock_code)}\n"
+            result += f"股票名称：{score_data.get('SECURITY_NAME_ABBR', stock_code)}\n"
+            result += f"评分：{score_data.get('TOTAL_SCORE', 0):.2f}\n"
+            result += f"评分变化：{score_data.get('TOTAL_SCORE_CHANGE', 0):+.2f}\n"
+            result += f"次日上涨概率：{score_data.get('RISE_1_PROBABILITY', 0):.2f}%\n"
+            result += f"次日平均涨跌：{score_data.get('AVERAGE_1_INCREASE', 0):.2f}%\n"
+            result += f"五日上涨概率：{score_data.get('RISE_5_PROBABILITY', 0):.2f}%\n"
+            result += f"五日平均涨跌：{score_data.get('AVERAGE_5_INCREASE', 0):.2f}%\n"
+            result += f"分析解读：{score_data.get('WORDS_EXPLAIN', '')}\n"
+            result += f"分析时间：{score_data.get('DIAGNOSE_TIME', '')}"
             
             return result
         except Exception as e:

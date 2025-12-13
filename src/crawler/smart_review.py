@@ -50,12 +50,39 @@ class SmartReviewCrawler(EastMoneyBaseSpider):
             "reportName": "RPT_CUSTOM_STOCK_PK"
         }
         
+        additional_params = {
+            "callback": callback,
+            "filter": f"(SECURITY_CODE=\"{stock_code}\")",
+            "columns": "ALL",
+            "source": "WEB",
+            "client": "WEB",
+            "reportName": "RPT_STOCK_CHANGERATE",
+            "pageSize": "1"
+        }
+        
         try:
             response = self._get_jsonp(self.SMART_SCORE_URL, params)
+            additional_response = self._get_jsonp(self.SMART_SCORE_URL, additional_params)
+            
             # 检查响应是否成功
             if response and response.get("code") == 0 and response.get("success") is True:
                 data = response.get("result", {}).get("data", [])
-                return data[0] if data else None
+                result = data[0] if data else {}
+                
+                # 添加额外的数据
+                if additional_response and additional_response.get("code") == 0 and additional_response.get("success") is True:
+                    additional_data = additional_response.get("result", {}).get("data", [])
+                    if additional_data:
+                        additional_info = additional_data[0]
+                        result.update({
+                            "SECURITY_NAME_ABBR":  additional_info.get("SECURITY_NAME_ABBR"),
+                            "RISE_1_PROBABILITY": additional_info.get("RISE_1_PROBABILITY"),
+                            "AVERAGE_1_INCREASE": additional_info.get("AVERAGE_1_INCREASE"),
+                            "RISE_5_PROBABILITY": additional_info.get("RISE_5_PROBABILITY"),
+                            "AVERAGE_5_INCREASE": additional_info.get("AVERAGE_5_INCREASE")
+                        })
+                
+                return result if result else None
             else:
                 # 如果不成功，返回错误信息
                 message = response.get("message", "未知错误") if response else "未知错误"
