@@ -22,6 +22,55 @@ def register_smart_review_tools(app: FastMCP, data_source: FinancialDataInterfac
         data_source: 数据源实例
     """
     @app.tool()
+    def get_main_force_control(stock_code: str) -> str:
+        """
+        获取个股主力控盘数据
+
+        Args:
+            stock_code: 股票代码，要在数字后加上交易所代码，格式如300750.SZ
+        Examples:
+            - get_main_force_control("300750.SZ")
+        """
+        try:
+            # 调用数据源获取主力控盘数据
+            control_data = data_source.get_main_force_control(stock_code)
+            
+            if not control_data:
+                return "未找到相关主力控盘数据"
+            
+            # 处理错误情况
+            if isinstance(control_data, list) and len(control_data) > 0 and "error" in control_data[0]:
+                return f"获取主力控盘数据失败: {control_data[0]['error']}"
+
+            # 准备表格数据
+            table_data = []
+            for item in control_data:
+                formatted_item = {
+                    "收盘价": f"{item.get('CLOSE_PRICE', 0):.2f}",
+                    "涨跌幅": f"{item.get('CHANGE_RATE', 0):+.2f}%",
+                    "换手率": f"{item.get('TURNOVERRATE', 0):.2f}%",
+                    "机构参与度": f"{item.get('ORG_PARTICIPATE', 0) * 100:.2f}%",
+                    "控盘状态": item.get("PARTICIPATE_TYPE_CN", ""),
+                    "近1日成本价": f"{item.get('PRIME_COST', 0):.2f}",
+                    "20日成本": f"{item.get('PRIME_COST_20DAYS', 0):.2f}",
+                    "60日成本": f"{item.get('PRIME_COST_60DAYS', 0):.2f}",
+                    "交易日期": item.get("TRADE_DATE", "").split(" ")[0],
+                }
+                table_data.append(formatted_item)
+            
+            # 格式化为Markdown表格
+            result = f"**{control_data[-1]["SECURITY_NAME_ABBR"]}股票主力控盘数据**\n\n"
+            result += format_list_to_markdown_table(table_data)
+            result += "\n点评："
+            result += f"\n机构参与度为{control_data[-1]['ORG_PARTICIPATE'] * 100:.2f}%，属于{control_data[-1]['PARTICIPATE_TYPE_CN']}"
+            result += f"\n最近1日主力成本{control_data[-1]['PRIME_COST']:.2f}元，最近20日主力成本{control_data[-1]['PRIME_COST_20DAYS']:.2f}元"
+            
+            return result
+        except Exception as e:
+            logger.error(f"获取主力控盘数据失败: {e}")
+            return f"获取主力控盘数据失败: {e}"
+
+    @app.tool()
     def get_smart_score(stock_code: str) -> str:
         """
         获取股票智能评分数据

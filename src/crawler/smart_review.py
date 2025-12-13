@@ -17,6 +17,7 @@ class SmartReviewCrawler(EastMoneyBaseSpider):
     SMART_REVIEW_URL = "https://datacenter.eastmoney.com/securities/api/data/v1/get"
     EXPERT_REVIEW_URL = "https://datacenter.eastmoney.com/securities/api/data/v1/get"
     SMART_SCORE_URL = "https://datacenter-web.eastmoney.com/api/data/v1/get"
+    MAIN_FORCE_CONTROL_URL = "https://datacenter-web.eastmoney.com/api/data/v1/get"
 
     def __init__(
             self,
@@ -30,6 +31,45 @@ class SmartReviewCrawler(EastMoneyBaseSpider):
         :param timeout: 请求超时时间
         """
         super().__init__(session, timeout)
+
+    def get_main_force_control(self, stock_code: str) -> Optional[List[Dict[Any, Any]]]:
+        """
+        获取主力控盘数据
+        
+        :param stock_code: 股票代码
+        :return: 主力控盘数据列表
+        """
+        # 如果股票代码包含交易所后缀，则移除后缀只保留纯数字部分
+        if '.' in stock_code:
+            stock_code = stock_code.split('.')[0]
+        
+        # 生成 callback 参数
+        callback = self._generate_callback()
+        
+        params = {
+            "callback": callback,
+            "reportName": "RPT_DMSK_TS_STOCKEVALUATE",
+            "filter": f"(SECURITY_CODE=\"{stock_code}\")",
+            "columns": "ALL",
+            "source": "WEB",
+            "client": "WEB",
+            "sortColumns": "TRADE_DATE",
+            "sortTypes": "1"
+        }
+        
+        try:
+            response = self._get_jsonp(self.MAIN_FORCE_CONTROL_URL, params)
+            
+            # 检查响应是否成功
+            if response and response.get("code") == 0 and response.get("success") is True:
+                data = response.get("result", {}).get("data", [])
+                return data if data else []
+            else:
+                # 如果不成功，返回错误信息
+                message = response.get("message", "未知错误") if response else "未知错误"
+                return [{"error": message}]
+        except Exception as e:
+            return [{"error": str(e)}]
 
     def get_smart_score(self, stock_code: str) -> Optional[Dict[Any, Any]]:
         """

@@ -631,3 +631,19 @@ class FinancialDataInterface(ABC):
             DataSourceError: 当数据源出现错误时
         """
         pass
+
+    @abstractmethod
+    def get_main_force_control(self, stock_code: str) -> Optional[List[Dict[Any, Any]]]:
+        """
+        获取主力控盘数据
+
+        Args:
+            stock_code: 股票代码，如 300750
+
+        Returns:
+            主力控盘数据列表
+
+        Raises:
+            DataSourceError: 当数据源出现错误时
+        """
+        pass

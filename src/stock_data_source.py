@@ -184,3 +184,6 @@ class WebCrawlerDataSource(FinancialDataInterface):
         
     def get_top_rated_stocks(self, page_size: int = 10) -> Optional[List[Dict[Any, Any]]]:
         return self.smart_review_crawler.get_top_rated_stocks(page_size)
+        
+    def get_main_force_control(self, stock_code: str) -> Optional[List[Dict[Any, Any]]]:
+        return self.smart_review_crawler.get_main_force_control(stock_code)
