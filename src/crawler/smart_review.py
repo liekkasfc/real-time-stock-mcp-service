@@ -38,6 +38,10 @@ class SmartReviewCrawler(EastMoneyBaseSpider):
         :param stock_code: 股票代码
         :return: 智能评分数据字典
         """
+        # 如果股票代码包含交易所后缀，则移除后缀只保留纯数字部分
+        if '.' in stock_code:
+            stock_code = stock_code.split('.')[0]
+        
         # 生成 callback 参数
         callback = self._generate_callback()
         
@@ -97,6 +101,10 @@ class SmartReviewCrawler(EastMoneyBaseSpider):
         :param stock_code: 股票代码
         :return: 智能评分排名数据字典
         """
+        # 如果股票代码包含交易所后缀，则移除后缀只保留纯数字部分
+        if '.' in stock_code:
+            stock_code = stock_code.split('.')[0]
+        
         # 生成 callback 参数
         callback = self._generate_callback()
         
@@ -122,3 +130,39 @@ class SmartReviewCrawler(EastMoneyBaseSpider):
                 return {"error": message}
         except Exception as e:
             return {"error": str(e)}
+
+    def get_top_rated_stocks(self, page_size: int = 10) -> Optional[List[Dict[Any, Any]]]:
+        """
+        获取全市场高评分个股
+        
+        :param page_size: 返回数据条数，默认为10条
+        :return: 高评分个股数据列表
+        """
+        # 生成 callback 参数
+        callback = self._generate_callback()
+        
+        params = {
+            "callback": callback,
+            "filter": "",
+            "columns": "ALL",
+            "source": "WEB",
+            "client": "WEB",
+            "reportName": "RPT_STOCK_PK_RANK",
+            "sortColumns": "COMPRE_SCORE",
+            "sortTypes": "-1",
+            "pageSize": str(page_size)
+        }
+        
+        try:
+            response = self._get_jsonp(self.SMART_SCORE_URL, params)
+            
+            # 检查响应是否成功
+            if response and response.get("code") == 0 and response.get("success") is True:
+                data = response.get("result", {}).get("data", [])
+                return data if data else []
+            else:
+                # 如果不成功，返回错误信息
+                message = response.get("message", "未知错误") if response else "未知错误"
+                return [{"error": message}]
+        except Exception as e:
+            return [{"error": str(e)}]

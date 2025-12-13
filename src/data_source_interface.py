@@ -614,3 +614,20 @@ class FinancialDataInterface(ABC):
             DataSourceError: 当数据源出现错误时
         """
         pass
+
+    @abstractmethod
+    def get_top_rated_stocks(self, page_size: int = 10) -> Optional[List[Dict[Any, Any]]]:
+        """
+        获取全市场高评分个股
+
+        Args:
+            page_size: 返回数据条数，默认为10条
+
+        Returns:
+            全市场高评分个股数据列表，每个元素是一个字典，包含个股评分相关信息
+            如果没有找到数据或出错，返回包含错误信息的列表或者None
+
+        Raises:
+            DataSourceError: 当数据源出现错误时
+        """
+        pass
