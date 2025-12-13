@@ -48,3 +48,49 @@ def register_smart_review_tools(app: FastMCP, data_source: FinancialDataInterfac
         except Exception as e:
             logger.error(f"获取股票智能评分数据失败: {e}")
             return f"获取股票智能评分数据失败 {e}"
+
+    @app.tool()
+    def get_smart_score_rank(stock_code: str) -> str:
+        """
+        获取个股智能评分排名数据
+        """
+        try:
+            # 调用数据源获取智能评分排名数据
+            rank_data = data_source.get_smart_score_rank(stock_code)
+            
+            if not rank_data:
+                return "未找到相关评分排名数据"
+
+            # 格式化为Markdown表格
+            result = f"**个股智能评分排名详情**\n\n"
+            result += f"股票代码：{rank_data.get('SECUCODE', stock_code)}\n"
+            result += f"股票名称：{rank_data.get('SECURITY_NAME_ABBR', '')}\n"
+            result += f"所属板块：{rank_data.get('BOARD_NAME', '')}({rank_data.get('BOARD_CODE', '')})\n\n"
+            result += f"交易日期：{rank_data.get('TRADE_DATE', '').split(' ')[0]}\n"
+            
+            # 综合评分部分
+            result += f"**综合评分**\n"
+            result += f"综合评分：{rank_data.get('COMPRE_SCORE', 0):.2f}分\n"
+            result += f"当日涨跌幅：{rank_data.get('CHANGE_RATE', 0):+.2f}%\n\n"
+            
+            # 行业内排名部分
+            result += f"**行业内排名**\n"
+            result += f"行业排名：第{rank_data.get('INDUSTRY_RANK', 0)}名\n"
+            result += f"行业最高分：{rank_data.get('INDUSTRY_SCORE_HIGH', 0):.2f}分\n"
+            result += f"行业平均分：{rank_data.get('INDUSTRY_SCORE_AVG', 0):.2f}分\n"
+            result += f"行业最低分：{rank_data.get('INDUSTRY_SCORE_LOW', 0):.2f}分\n"
+            result += f"{rank_data.get('BOARD_NAME', '')}行业共{rank_data.get('INDUSTRY_STOCK_NUM', 0)}只股票，已评{rank_data.get('EVALUATE_INDUSTRY_NUM', 0)}只\n\n"
+            
+            # 全市场排名部分
+            result += f"**全市场排名**\n"
+            result += f"市场排名：第{rank_data.get('MARKET_RANK', 0)}名\n"
+            result += f"打败了市场{rank_data.get('STOCK_RANK_RATIO', 0):.2f}%的股票\n"
+            result += f"市场最高分：{rank_data.get('MARKET_SCORE_HIGH', 0):.2f}分\n"
+            result += f"市场平均分：{rank_data.get('MARKET_SCORE_AVG', 0):.2f}分\n"
+            result += f"市场最低分：{rank_data.get('MARKET_SCORE_LOW', 0):.2f}分\n"
+            result += f"沪深市场共{rank_data.get('MARKET_STOCK_NUM', 0)}只股票，已评{rank_data.get('EVALUATE_MARKET_NUM', 0)}只"
+            
+            return result
+        except Exception as e:
+            logger.error(f"获取个股智能评分排名数据失败: {e}")
+            return f"获取个股智能评分排名数据失败: {e}"

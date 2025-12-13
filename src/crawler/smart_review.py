@@ -89,3 +89,36 @@ class SmartReviewCrawler(EastMoneyBaseSpider):
                 return {"error": message}
         except Exception as e:
             return {"error": str(e)}
+
+    def get_smart_score_rank(self, stock_code: str) -> Optional[Dict[Any, Any]]:
+        """
+        获取个股智能评分排名数据
+        
+        :param stock_code: 股票代码
+        :return: 智能评分排名数据字典
+        """
+        # 生成 callback 参数
+        callback = self._generate_callback()
+        
+        params = {
+            "callback": callback,
+            "filter": f"(SECURITY_CODE=\"{stock_code}\")",
+            "columns": "ALL",
+            "source": "WEB",
+            "client": "WEB",
+            "reportName": "RPT_STOCK_PK_RANK"
+        }
+        
+        try:
+            response = self._get_jsonp(self.SMART_SCORE_URL, params)
+            
+            # 检查响应是否成功
+            if response and response.get("code") == 0 and response.get("success") is True:
+                data = response.get("result", {}).get("data", [])
+                return data[0] if data else None
+            else:
+                # 如果不成功，返回错误信息
+                message = response.get("message", "未知错误") if response else "未知错误"
+                return {"error": message}
+        except Exception as e:
+            return {"error": str(e)}

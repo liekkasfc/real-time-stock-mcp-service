@@ -178,3 +178,6 @@ class WebCrawlerDataSource(FinancialDataInterface):
         
     def get_smart_score(self, stock_code: str) -> Optional[Dict[Any, Any]]:
         return self.smart_review_crawler.get_smart_score(stock_code)
+        
+    def get_smart_score_rank(self, stock_code: str) -> Optional[Dict[Any, Any]]:
+        return self.smart_review_crawler.get_smart_score_rank(stock_code)
