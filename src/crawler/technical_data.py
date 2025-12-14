@@ -97,6 +97,25 @@ class KlineSpider(EastMoneyBaseSpider):
         if '.' in stock_code:
             stock_code = stock_code.split('.')[0]
 
+        # 获取MACD等技术指标数据
+        macd_data = self._get_macd_data(stock_code, page_size)
+        
+        # 获取趋势量能等额外技术指标数据
+        trend_data = self._get_trend_volume_data(stock_code, page_size)
+        
+        # 合并数据
+        merged_data = self._merge_technical_data(macd_data, trend_data)
+        
+        return merged_data
+
+    def _get_macd_data(self, stock_code: str, page_size: int) -> List[Dict[Any, Any]]:
+        """
+        获取MACD技术指标数据
+
+        :param stock_code: 股票代码
+        :param page_size: 返回数据条数
+        :return: MACD技术指标数据列表
+        """
         # 生成 callback 参数
         callback = self._generate_callback()
 
@@ -116,13 +135,82 @@ class KlineSpider(EastMoneyBaseSpider):
         response = self._get_jsonp(self.TECHNICAL_INDICATORS_URL, params)
 
         if not response or not response.get("result"):
-            raise RuntimeError(f"获取技术指标数据失败: {response}")
+            raise RuntimeError(f"获取MACD技术指标数据失败: {response}")
 
         data = response["result"].get("data")
         if data is None:
             raise RuntimeError(f"响应无 data 字段: {response}")
 
         return data
+
+    def _get_trend_volume_data(self, stock_code: str, page_size: int) -> List[Dict[Any, Any]]:
+        """
+        获取趋势量能技术指标数据
+
+        :param stock_code: 股票代码
+        :param page_size: 返回数据条数
+        :return: 趋势量能技术指标数据列表
+        """
+        # 生成 callback 参数
+        callback = self._generate_callback()
+
+        params = {
+            "callback": callback,
+            "filter": f'(SECURITY_CODE="{stock_code}")',
+            "columns": "ALL",
+            "source": "WEB",
+            "client": "WEB",
+            "reportName": "RPT_STOCK_TRENDVOLUME_PK",
+            "sortColumns": "TRADE_DATE",
+            "sortTypes": "-1",
+            "pageSize": str(page_size),
+            "_": str(self._timestamp_ms())
+        }
+
+        response = self._get_jsonp(self.TECHNICAL_INDICATORS_URL, params)
+
+        if not response or not response.get("result"):
+            raise RuntimeError(f"获取趋势量能技术指标数据失败: {response}")
+
+        data = response["result"].get("data")
+        if data is None:
+            raise RuntimeError(f"响应无 data 字段: {response}")
+
+        return data
+
+    def _merge_technical_data(self, macd_data: List[Dict], trend_data: List[Dict]) -> List[Dict[Any, Any]]:
+        """
+        合并不同来源的技术指标数据
+
+        :param macd_data: MACD技术指标数据
+        :param trend_data: 趋势量能技术指标数据
+        :return: 合并后的技术指标数据
+        """
+        # 创建以日期为键的字典以便匹配数据
+        trend_dict = {item.get('TRADE_DATE', item.get('TRADEDATE')): item for item in trend_data}
+        
+        merged_data = []
+        for macd_item in macd_data:
+            # 使用TRADEDATE作为主键
+            trade_date = macd_item.get('TRADEDATE')
+            merged_item = macd_item.copy()
+            
+            # 如果在趋势数据中找到匹配的日期，则合并数据
+            if trade_date in trend_dict:
+                trend_item = trend_dict[trade_date]
+                # 添加趋势量能相关字段
+                merged_item.update({
+                    "AVG_PRICE": trend_item.get("AVG_PRICE"),
+                    "AVG_AMOUNT_5DAYS": trend_item.get("AVG_AMOUNT_5DAYS"),
+                    "DAILY_TRADE_60TD": trend_item.get("DAILY_TRADE_60TD"),
+                    "PRESSURE_LEVEL": trend_item.get("PRESSURE_LEVEL"),
+                    "SUPPORT_LEVEL": trend_item.get("SUPPORT_LEVEL"),
+                    "WORDS_EXPLAIN": trend_item.get("WORDS_EXPLAIN")
+                })
+            
+            merged_data.append(merged_item)
+        
+        return merged_data
 
 # ==================== 使用示例 ====================
 if __name__ == "__main__":

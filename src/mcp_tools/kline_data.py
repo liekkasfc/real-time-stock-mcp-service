@@ -66,7 +66,12 @@ def format_technical_indicators_data(technical_data: List[Dict]) -> List[Dict]:
             '开盘价': format_number(item.get('OPEN', 0)),
             '最高价': format_number(item.get('HIGH', 0)),
             '最低价': format_number(item.get('LOW', 0)),
-            
+            '60日K线数据（日期 开盘 最高 最低 收盘）': item.get('DAILY_TRADE_60TD', ''),
+
+            '移动平均线价格（MA5 MA10 MA20，单位：元）': item.get('AVG_PRICE', ''),
+            '5日平均成交金额': f"{format_large_number(item.get('AVG_AMOUNT_5DAYS', 0))} 元" if item.get(
+                'AVG_AMOUNT_5DAYS') else '',
+
             # MACD指标
             'DIF': f"{item.get('DIF', 0):.4f}",
             'DEA': f"{item.get('DEA', 0):.4f}",
@@ -86,9 +91,9 @@ def format_technical_indicators_data(technical_data: List[Dict]) -> List[Dict]:
             'RSI信号': item.get('RSIOUT', ''),
             
             # BOLL指标
-            '中轨': format_number(item.get('MID', 0)),
-            '上轨': format_number(item.get('UPPER', 0)),
-            '下轨': format_number(item.get('LOWER', 0)),
+            'BOLL上轨': format_number(item.get('UPPER', 0)),
+            'BOLL中轨': format_number(item.get('MID', 0)),
+            'BOLL下轨': format_number(item.get('LOWER', 0)),
             'BOLL信号': item.get('BOLLOUT', ''),
             
             # BIAS指标
@@ -106,7 +111,11 @@ def format_technical_indicators_data(technical_data: List[Dict]) -> List[Dict]:
             '近60日区间涨跌幅': f"{item.get('PCTCHANGE_STOCK', 0):+.2f}%",
             '近60日区间振幅': f"{item.get('SWING', 0):.2f}%",
             '近60日沪深300涨跌幅': f"{item.get('PCTCHANGE_INDEX', 0):+.2f}%",
-            '近60日区间换手率': f"{item.get('AVGTURN', 0):.2f}%"
+            '近60日区间换手率': f"{item.get('AVGTURN', 0):.2f}%",
+
+            '压力位': f"{format_number(item.get('PRESSURE_LEVEL', 0))} 元" if item.get('PRESSURE_LEVEL') else '',
+            '支撑位': f"{format_number(item.get('SUPPORT_LEVEL', 0))} 元" if item.get('SUPPORT_LEVEL') else '',
+            '趋势量能分析': item.get('WORDS_EXPLAIN', '')
         }
         
         formatted_data.append(formatted_item)
@@ -209,7 +218,7 @@ def register_kline_tools(app: FastMCP, data_source: FinancialDataInterface):
         page_size: int = 30
     ) -> str:
         """
-        获取指定股票的技术指标数据，包括MACD、KDJ、RSI、BOLL等技术指标。
+        获取指定股票的技术指标数据，包括MACD、KDJ、RSI、BOLL等技术指标和技术分析。
 
         Args:
             stock_code: 股票代码，要在数字后加上交易所代码，格式如300750.SZ
