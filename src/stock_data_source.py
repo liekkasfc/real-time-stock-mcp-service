@@ -187,3 +187,6 @@ class WebCrawlerDataSource(FinancialDataInterface):
         
     def get_main_force_control(self, stock_code: str) -> Optional[List[Dict[Any, Any]]]:
         return self.smart_review_crawler.get_main_force_control(stock_code)
+        
+    def get_participation_wish(self, stock_code: str) -> Optional[List[Dict[Any, Any]]]:
+        return self.smart_review_crawler.get_participation_wish(stock_code)

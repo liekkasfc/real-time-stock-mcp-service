@@ -647,3 +647,19 @@ class FinancialDataInterface(ABC):
             DataSourceError: 当数据源出现错误时
         """
         pass
+
+    @abstractmethod
+    def get_participation_wish(self, stock_code: str) -> Optional[List[Dict[Any, Any]]]:
+        """
+        获取市场参与意愿数据
+
+        Args:
+            stock_code: 股票代码，如 300750
+
+        Returns:
+            市场参与意愿数据列表
+
+        Raises:
+            DataSourceError: 当数据源出现错误时
+        """
+        pass

@@ -22,6 +22,52 @@ def register_smart_review_tools(app: FastMCP, data_source: FinancialDataInterfac
         data_source: 数据源实例
     """
     @app.tool()
+    def get_participation_wish(stock_code: str) -> str:
+        """
+        获取个股市场参与意愿数据
+
+        Args:
+            stock_code: 股票代码，要在数字后加上交易所代码，格式如300750.SZ
+        Examples:
+            - get_participation_wish("300750.SZ")
+        """
+        try:
+            # 调用数据源获取市场参与意愿数据
+            wish_data = data_source.get_participation_wish(stock_code)
+            
+            if not wish_data:
+                return "未找到相关市场参与意愿数据"
+            
+            # 处理错误情况
+            if isinstance(wish_data, list) and len(wish_data) > 0 and "error" in wish_data[0]:
+                return f"获取市场参与意愿数据失败: {wish_data[0]['error']}"
+
+            # 准备表格数据
+            table_data = []
+            for item in wish_data:
+                formatted_item = {
+                    "交易日期": item.get("TRADE_DATE", "").split(" ")[0],
+                    "当日参与意愿度": f"{item.get('PARTICIPATION_WISH', 0):.2f}",
+                    "5日平均意愿度": f"{item.get('PARTICIPATION_WISH_5DAYS', 0):.2f}",
+                    "当日意愿度变化": f"{item.get('PARTICIPATION_WISH_CHANGE', 0):+.2f}",
+                    "5日平均意愿变化": f"{item.get('PARTICIPATION_WISH_5DAYSCHANGE', 0):+.2f}",
+                }
+                table_data.append(formatted_item)
+            
+            # 获取股票代码作为名称的默认值
+            security_name = stock_code
+            
+            # 格式化为Markdown表格
+            result = f"**{security_name}市场参与意愿**\n\n"
+            result += format_list_to_markdown_table(table_data)
+            result += "\n\n说明："
+            result += "\n- 参与意愿由根据大数据对投资者入场意愿量化统计得出，参与意愿上升代表入场意愿增强"
+            return result
+        except Exception as e:
+            logger.error(f"获取市场参与意愿数据失败: {e}")
+            return f"获取市场参与意愿数据失败: {e}"
+
+    @app.tool()
     def get_main_force_control(stock_code: str) -> str:
         """
         获取个股主力控盘数据
