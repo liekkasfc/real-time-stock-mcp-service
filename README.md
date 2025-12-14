@@ -69,7 +69,7 @@ uv run mcp_server.py
 ```json
 {
   "mcpServers": {
-    "stock-data": {
+    "real-time-stock-mcp-service": {
       "command": "uv",
       "args": [
         "--directory",
