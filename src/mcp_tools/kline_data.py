@@ -113,8 +113,8 @@ def format_technical_indicators_data(technical_data: List[Dict]) -> List[Dict]:
             '近60日沪深300涨跌幅': f"{item.get('PCTCHANGE_INDEX', 0):+.2f}%",
             '近60日区间换手率': f"{item.get('AVGTURN', 0):.2f}%",
 
-            '压力位': f"{format_number(item.get('PRESSURE_LEVEL', 0))} 元" if item.get('PRESSURE_LEVEL') else '',
             '支撑位': f"{format_number(item.get('SUPPORT_LEVEL', 0))} 元" if item.get('SUPPORT_LEVEL') else '',
+            '压力位': f"{format_number(item.get('PRESSURE_LEVEL', 0))} 元" if item.get('PRESSURE_LEVEL') else '',
             '趋势量能分析': item.get('WORDS_EXPLAIN', '')
         }
         
