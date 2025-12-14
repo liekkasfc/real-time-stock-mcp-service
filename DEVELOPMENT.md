@@ -29,9 +29,14 @@
          │   └── ...
          │
          └─→ mcp_tools/                     ← 各个MCP工具模块
-              ├─ search.py
-              ├─ kline_data.py
-              └─ ...
+              ├─ search.py                 ← 股票搜索和交易日信息
+              ├─ real_time_data.py         ← 实时股票行情数据
+              ├─ kline_data.py             ← K线数据和技术指标
+              ├─ fundamental.py            ← 基本面数据（主营构成、经营范围等）
+              ├─ valuation.py              ← 估值分析数据（市盈率、市净率等）
+              ├─ financial_analysis.py      ← 财务分析数据（财务比率、业绩概况等）
+              ├─ market.py                 ← 市场行情数据（板块行情、资金流向等）
+              └─ smart_review.py           ← 智能点评和评分
 ```
 
 **优势**:

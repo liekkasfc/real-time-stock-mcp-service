@@ -47,7 +47,7 @@ class KlineSpider(EastMoneyBaseSpider):
             fqt: int = FQT_FORWARD,
     ) -> List[str]:
         """
-        获取 K 线数据，支持A股，H股，大盘
+        获取 K 线数据，支持A股，B股，H股，大盘
 
         :param stock_code: 股票代码，要在数字后加上交易所代码，格式如688041.SH
         :param beg: 开始日期 YYYYMMDD

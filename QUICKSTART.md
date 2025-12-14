@@ -95,11 +95,9 @@ uv run mcp_server.py
 setup_logging(level=logging.DEBUG)  # 改为 DEBUG 级别
 ```
 
-## 6. 下一步
-
-- 阅读 [README.md](README.md) 了解所有可用工具
-- 查看[开发指南](DEVELOPMENT.md)了解如何添加新功能
-- 探索各个工具模块的实现
+## 6. 视频教程参考
+- [火遍全网的MCP是什么？怎么用？如何自己开发一个MCP服务？一个视频带你入门！](https://www.bilibili.com/video/BV13R5EzbE6E/?spm_id_from=333.337.search-card.all.click&vd_source=08fc400fe0cfc7eaa723687b764b29f3)  
+- [Cherry Studio MCP 使用入门教程：从配置到使用](https://www.bilibili.com/video/BV1bkdAYTEYp/?spm_id_from=333.337.search-card.all.click&vd_source=08fc400fe0cfc7eaa723687b764b29f3)  
 
 ## 需要帮助?
 

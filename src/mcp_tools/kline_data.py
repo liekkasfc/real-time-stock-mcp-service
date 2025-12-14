@@ -140,7 +140,7 @@ def register_kline_tools(app: FastMCP, data_source: FinancialDataInterface):
         frequency: str = "d"
     ) -> str:
         """
-        获取指定股票在指定日期范围内的K线数据，支持A股，H股，大盘。
+        获取指定股票在指定日期范围内的K线数据，支持A股，B股，H股，大盘
 
         Args:
             stock_code: 股票代码，要在数字后加上交易所代码，格式如300750.SZ

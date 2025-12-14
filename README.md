@@ -1,13 +1,19 @@
-# 实时股票 MCP 服务
+# 实时股票分析 MCP 服务
 
-这是一个实时股票数据服务的MCP（Model Context Protocol）服务器。它通过东方财富网获取金融数据，并将这些数据以工具的形式暴露给支持MCP的AI模型。
+这是一个实时股票数据服务的MCP（Model Context Protocol）服务器。它通过东方财富网获取金融数据，并将这些数据以工具的形式暴露给支持MCP的AI模型。  
+部分功能支持B股，H股
 
 ## 功能特性
 
 - 📊 查找股票
 - 📈 K线数据查询（日线、周线、月线等）
-- 📉 计算技术指标
-- 待开发...
+- 📉 技术指标分析
+- 💰 基本面数据分析
+- 📊 财务分析
+- 📈 市场行情跟踪
+- 🤖 智能点评和评分  
+共33个MCP工具 
+
 ## 环境要求
 
 - Python 3.12+
@@ -76,6 +82,9 @@ uv run mcp_server.py
 ```
 
 注意：将路径替换为你的实际项目路径。
+视频教程参考：
+- [火遍全网的MCP是什么？怎么用？如何自己开发一个MCP服务？一个视频带你入门！](https://www.bilibili.com/video/BV13R5EzbE6E/?spm_id_from=333.337.search-card.all.click&vd_source=08fc400fe0cfc7eaa723687b764b29f3)  
+- [Cherry Studio MCP 使用入门教程：从配置到使用](https://www.bilibili.com/video/BV1bkdAYTEYp/?spm_id_from=333.337.search-card.all.click&vd_source=08fc400fe0cfc7eaa723687b764b29f3)  
 
 ## 项目结构
 
@@ -116,6 +125,19 @@ real-time-stock-mcp-service/
 - ✅ 可以轻松切换不同数据源
 - ✅ 便于单元测试
 - ✅ 代码解耦，维护性强
+
+## 工具模块
+
+项目包含33个MCP工具模块，每个模块提供特定领域的功能：
+
+- `search.py` - 股票搜索和交易日信息
+- `real_time_data.py` - 实时股票行情数据
+- `kline_data.py` - K线数据和技术指标
+- `fundamental.py` - 基本面数据（主营构成、经营范围等）
+- `valuation.py` - 估值分析数据（市盈率、市净率等）
+- `financial_analysis.py` - 财务分析数据（财务比率、业绩概况等）
+- `market.py` - 市场行情数据（板块行情、资金流向等）
+- `smart_review.py` - 智能点评和评分
 
 
 
