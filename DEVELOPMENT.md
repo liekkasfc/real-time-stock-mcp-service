@@ -93,13 +93,14 @@ class MyNewCrawler(EastMoneyBaseSpider):
 
 ```python
 # src/stock_data_source.py
-from src.crawler.my_new_crawler import MyNewCrawler
+from src.stock_mcp.crawler import MyNewCrawler
+
 
 class WebCrawlerDataSource(FinancialDataInterface):
     def __init__(self):
         # 初始化新的爬虫
         self.my_new_crawler = MyNewCrawler()
-        
+
     def get_my_data(self, param: str):
         """获取特定数据"""
         return self.my_new_crawler.get_my_data(param)
@@ -173,7 +174,7 @@ def get_new_feature_data(self, param: str) -> Dict[str, Any]:
 
 import logging
 from mcp.server.fastmcp import FastMCP
-from src.data_source_interface import FinancialDataInterface
+from src.stock_mcp.data_source_interface import FinancialDataInterface
 
 logger = logging.getLogger(__name__)
 
@@ -186,7 +187,7 @@ def register_my_new_tools(app: FastMCP, data_source: FinancialDataInterface):
         app: FastMCP应用实例
         data_source: 数据源实例
     """
-    
+
     @app.tool()
     def my_new_tool(param: str) -> str:
         """
@@ -206,21 +207,20 @@ def register_my_new_tools(app: FastMCP, data_source: FinancialDataInterface):
         """
         try:
             logger.info(f"执行新工具: {param}")
-            
+
             # 1. 使用data_source获取数据
             data = data_source.get_new_feature_data(param)
-            
+
             # 2. 处理数据
             if not data:
                 return "未找到数据"
-            
-            
+
             return data
-            
+
         except Exception as e:
             logger.error(f"工具执行出错: {e}")
             return f"执行失败: {str(e)}"
-    
+
     logger.info("我的新工具已注册")
 ```
 
@@ -230,7 +230,7 @@ def register_my_new_tools(app: FastMCP, data_source: FinancialDataInterface):
 
 ```python
 # 1. 导入注册函数
-from src.mcp_tools.my_new_tool import register_my_new_tools
+from src.stock_mcp.mcp_tools import register_my_new_tools
 
 # 2. 在注册区域添加
 register_my_new_tools(app, active_data_source)
@@ -245,23 +245,24 @@ register_my_new_tools(app, active_data_source)
 创建 `src/another_data_source.py`:
 
 ```python
-from src.data_source_interface import FinancialDataInterface
+from src.stock_mcp.data_source_interface import FinancialDataInterface
+
 
 class AnotherDataSource(FinancialDataInterface):
     """另一个数据源实现"""
-    
+
     def __init__(self):
         # 初始化代码
         pass
-    
+
     def initialize(self) -> bool:
         # 实现初始化
         return True
-    
+
     def cleanup(self):
         # 实现清理
         pass
-    
+
     # 实现接口中的所有方法...
     def search_stock(self, keyword: str):
         # 使用新数据源的API
@@ -352,7 +353,7 @@ def my_tool(param: str) -> str:
 
 ```python
 import pytest
-from src.mcp_tools.my_new_tool import register_my_new_tools
+from src.stock_mcp.mcp_tools import register_my_new_tools
 from unittest.mock import Mock
 
 
@@ -396,7 +397,7 @@ setup_logging(level=logging.DEBUG)
 创建临时测试脚本:
 
 ```python
-from src.stock_data_source import WebCrawlerDataSource
+from src.stock_mcp.stock_data_source import WebCrawlerDataSource
 
 # 测试某个功能
 data_source = WebCrawlerDataSource()

@@ -1,4 +1,4 @@
-from src.crawler.base_crawler import EastMoneyBaseSpider
+from src.stock_mcp.crawler.base_crawler import EastMoneyBaseSpider
 
 import requests
 from typing import Optional, Dict, Any, List

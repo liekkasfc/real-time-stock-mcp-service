@@ -31,7 +31,7 @@ uv sync
 直接运行服务器:
 
 ```bash
-uv run mcp_server.py
+uv run app.py
 ```
 
 服务器将启动并等待 MCP 客户端连接。
@@ -57,7 +57,7 @@ uv run mcp_server.py
         "--directory",
         "F:/path/to/your/project/real-time-stock-mcp-service",
         "run",
-        "mcp_server.py"
+        "app.py"
       ]
     }
   }
@@ -79,7 +79,7 @@ uv run mcp_server.py
         "--directory",
         "/home/username/projects/real-time-stock-mcp-service",
         "run",
-        "mcp_server.py"
+        "app.py"
       ]
     }
   }

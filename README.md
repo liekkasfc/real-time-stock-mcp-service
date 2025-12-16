@@ -54,7 +54,7 @@ uv sync
 ### 直接运行服务器
 
 ```bash
-uv run mcp_server.py
+uv run app.py
 ```
 
 ### client 中配置
@@ -75,7 +75,7 @@ uv run mcp_server.py
         "--directory",
         "C:\\path\\to\\real-time-stock-mcp-service",
         "run",
-        "mcp_server.py"
+        "app.py"
       ]
     }
   }

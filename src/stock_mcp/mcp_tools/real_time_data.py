@@ -6,9 +6,9 @@
 
 import logging
 from mcp.server.fastmcp import FastMCP
-from src.data_source_interface import FinancialDataInterface
-from src.utils.utils import format_timestamp
-from src.utils.markdown_formatter import format_list_to_markdown_table
+from src.stock_mcp.data_source_interface import FinancialDataInterface
+from src.stock_mcp.utils.utils import format_timestamp
+from src.stock_mcp.utils.markdown_formatter import format_list_to_markdown_table
 
 logger = logging.getLogger(__name__)
 
