@@ -7,8 +7,8 @@ src/mcp_tools/smart_review.py
 import logging
 from mcp.server.fastmcp import FastMCP
 
-from src.stock_mcp.data_source_interface import FinancialDataInterface
-from src.stock_mcp.utils.markdown_formatter import format_list_to_markdown_table
+from stock_mcp.data_source_interface import FinancialDataInterface
+from stock_mcp.utils.markdown_formatter import format_list_to_markdown_table
 
 logger = logging.getLogger(__name__)
 

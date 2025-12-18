@@ -2,7 +2,7 @@ import time
 
 import requests
 from typing import Dict, Any, Optional, List
-from .base_crawler import EastMoneyBaseSpider
+from stock_mcp.crawler.base_crawler import EastMoneyBaseSpider
 
 
 class RealTimeDataSpider(EastMoneyBaseSpider):

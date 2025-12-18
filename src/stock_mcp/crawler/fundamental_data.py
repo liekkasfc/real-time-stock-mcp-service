@@ -1,7 +1,7 @@
 import json
 import re
 
-from src.stock_mcp.crawler.base_crawler import EastMoneyBaseSpider
+from stock_mcp.crawler.base_crawler import EastMoneyBaseSpider
 
 import requests
 from typing import Optional, Dict, Any, List

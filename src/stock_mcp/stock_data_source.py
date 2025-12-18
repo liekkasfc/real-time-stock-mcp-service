@@ -6,13 +6,14 @@ src/stock_data_source.py
 
 import logging
 from typing import List, Optional, Dict, Any
-from .data_source_interface import FinancialDataInterface
+
+from stock_mcp.data_source_interface import FinancialDataInterface
 
 logger = logging.getLogger(__name__)
 
 
 class WebCrawlerDataSource(FinancialDataInterface):
-    
+
     def __init__(self):
         self.kline_spider = None
         self.searcher = None
@@ -22,17 +23,28 @@ class WebCrawlerDataSource(FinancialDataInterface):
         self.financial_analysis_crawler = None
         self.market_spider = None
         self.smart_review_crawler = None
-    
+
     def initialize(self) -> bool:
+        """
+        初始化所有爬虫组件
+
+        Returns:
+            bool: 初始化成功返回True
+
+        Raises:
+            ImportError: 当无法导入必要的模块时
+            Exception: 当初始化过程中的其他错误发生时
+        """
         try:
-            from src.stock_mcp.crawler.basic_data import StockSearcher
-            from src.stock_mcp.crawler.technical_data import KlineSpider
-            from src.stock_mcp.crawler.real_time_data import RealTimeDataSpider
-            from src.stock_mcp.crawler.fundamental_data import FundamentalDataCrawler
-            from src.stock_mcp.crawler.valuation_data import ValuationDataCrawler
-            from src.stock_mcp.crawler.financial_analysis import FinancialAnalysisCrawler
-            from src.stock_mcp.crawler.market import MarketSpider
-            from src.stock_mcp.crawler.smart_review import SmartReviewCrawler
+            from stock_mcp.crawler.basic_data import StockSearcher
+            from stock_mcp.crawler.technical_data import KlineSpider
+            from stock_mcp.crawler.real_time_data import RealTimeDataSpider
+            from stock_mcp.crawler.fundamental_data import FundamentalDataCrawler
+            from stock_mcp.crawler.valuation_data import ValuationDataCrawler
+            from stock_mcp.crawler.financial_analysis import FinancialAnalysisCrawler
+            from stock_mcp.crawler.market import MarketSpider
+            from stock_mcp.crawler.smart_review import SmartReviewCrawler
+
             self.kline_spider = KlineSpider()
             self.searcher = StockSearcher()
             self.real_time_spider = RealTimeDataSpider()
@@ -41,9 +53,19 @@ class WebCrawlerDataSource(FinancialDataInterface):
             self.financial_analysis_crawler = FinancialAnalysisCrawler()
             self.market_spider = MarketSpider()
             self.smart_review_crawler = SmartReviewCrawler()
+
+            # 验证关键组件是否初始化成功
+            if not all([self.kline_spider, self.searcher, self.real_time_spider,
+                       self.fundamental_crawler, self.valuation_crawler,
+                       self.financial_analysis_crawler, self.market_spider,
+                       self.smart_review_crawler]):
+                raise RuntimeError("一个或多个爬虫组件初始化失败")
+
             return True
+        except ImportError as e:
+            raise ImportError(f"无法导入必要的爬虫模块: {e}") from e
         except Exception as e:
-            return False
+            raise Exception(f"初始化爬虫组件失败: {e}") from e
 
     def cleanup(self):
         self.kline_spider = None
@@ -167,24 +189,24 @@ class WebCrawlerDataSource(FinancialDataInterface):
     def get_current_count_changes(self) -> Optional[List[Dict[Any, Any]]]:
         return self.market_spider.get_current_count_changes()
 
-    def get_macroeconomic_research(self, begin_time: str, 
+    def get_macroeconomic_research(self, begin_time: str,
                                   end_time: str) -> Optional[List[Dict[Any, Any]]]:
         return self.market_spider.get_macroeconomic_research(begin_time, end_time)
 
     def get_real_time_market_indices(self) -> List[Dict]:
         return self.real_time_spider.get_real_time_market_indices()
-        
+
     def get_smart_score(self, stock_code: str) -> Optional[Dict[Any, Any]]:
         return self.smart_review_crawler.get_smart_score(stock_code)
-        
+
     def get_smart_score_rank(self, stock_code: str) -> Optional[Dict[Any, Any]]:
         return self.smart_review_crawler.get_smart_score_rank(stock_code)
-        
+
     def get_top_rated_stocks(self, page_size: int = 10) -> Optional[List[Dict[Any, Any]]]:
         return self.smart_review_crawler.get_top_rated_stocks(page_size)
-        
+
     def get_main_force_control(self, stock_code: str) -> Optional[List[Dict[Any, Any]]]:
         return self.smart_review_crawler.get_main_force_control(stock_code)
-        
+
     def get_participation_wish(self, stock_code: str) -> Optional[List[Dict[Any, Any]]]:
         return self.smart_review_crawler.get_participation_wish(stock_code)

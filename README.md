@@ -69,14 +69,11 @@ uv run app.py
 ```json
 {
   "mcpServers": {
-    "real-time-stock-mcp-service": {
-      "command": "uv",
+    "stock-mcp": {
       "args": [
-        "--directory",
-        "C:\\path\\to\\real-time-stock-mcp-service",
-        "run",
-        "stock-mcp"
-      ]
+        "real-time-stock-mcp-service"
+      ],
+      "command": "uvx"
     }
   }
 }
@@ -150,7 +147,8 @@ real-time-stock-mcp-service/
 
 ⚠️ **重要提醒**：
 1. 本服务提供的数据仅供参考，不构成投资建议
-2. 请遵守数据使用协议和相关法律法规
+2. 仅允许个人学习、研究、使用，禁止用于商业用途。严禁滥用！
+3. 请遵守数据使用协议和相关法律法规
 
 ## 许可证
 

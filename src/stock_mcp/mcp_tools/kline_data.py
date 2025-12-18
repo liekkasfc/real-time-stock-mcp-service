@@ -6,9 +6,9 @@ src/mcp_tools/kline_data.py
 import logging
 from typing import List, Dict
 from mcp.server.fastmcp import FastMCP
-from ..data_source_interface import FinancialDataInterface
-from ..utils.utils import format_number, format_large_number
-from ..utils.markdown_formatter import format_list_to_markdown_table
+from stock_mcp.data_source_interface import FinancialDataInterface
+from stock_mcp.utils.markdown_formatter import format_list_to_markdown_table
+from stock_mcp.utils.utils import format_number, format_large_number
 
 logger = logging.getLogger(__name__)
 

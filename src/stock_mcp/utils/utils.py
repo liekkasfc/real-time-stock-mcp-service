@@ -4,25 +4,26 @@
 
 import logging
 import sys
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from typing import Optional
 
 
-def setup_logging(level=logging.INFO):
+def setup_logging(level=logging.INFO) -> None:
     """
-    配置日志系统
-    
+    ✅ MCP stdio 托管关键点：
+    - stdout 必须留给 MCP 协议（JSON-RPC 消息）
+    - 所有日志必须走 stderr
+    - 托管环境可能已经配置过 logging，所以必须强制覆盖
+
     Args:
         level: 日志级别
     """
     logging.basicConfig(
         level=level,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.StreamHandler(sys.stderr)
-        ]
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        handlers=[logging.StreamHandler(sys.stderr)],  # ✅ 强制 stderr
+        force=True,  # ✅ 关键：覆盖托管环境可能已有的 logging 配置
     )
-
 
 def format_date(date_obj: datetime) -> str:
     """

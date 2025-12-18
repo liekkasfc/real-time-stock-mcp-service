@@ -1,12 +1,6 @@
-import sys
-import os
 import time
 
-
-# 添加项目根目录到 Python 路径
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
-
-from src.stock_mcp.crawler.base_crawler import EastMoneyBaseSpider
+from stock_mcp.crawler.base_crawler import EastMoneyBaseSpider
 
 import requests
 from typing import Optional, Dict, Any, List
