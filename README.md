@@ -4,7 +4,7 @@
 
 这是一个实时股票数据服务的MCP（Model Context Protocol）服务器。它通过东方财富网获取金融数据，并将这些数据以工具的形式暴露给支持MCP的AI模型。
 
-> **项目地址：** https://github.com/DannyWongIsAvailable/real-time-stock-mcp-service.git
+> **代码仓库：** https://github.com/DannyWongIsAvailable/real-time-stock-mcp-service.git
 
 - 免费免登录获取数据，免数据源token
 - 部分功能支持B股，H股
