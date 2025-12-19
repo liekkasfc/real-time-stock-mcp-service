@@ -111,5 +111,5 @@ https://modelscope.cn/mcp/servers/DannyWong/real-time-stock-mcp
 
 ## 联系方式
 
-如有问题，请提交 Issue 或联系项目开发者。
+如有问题，请提交 Issue 或联系项目开发者。  
 求一个star，感激不尽！
