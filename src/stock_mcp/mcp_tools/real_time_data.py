@@ -8,7 +8,7 @@ import logging
 from mcp.server.fastmcp import FastMCP
 from stock_mcp.data_source_interface import FinancialDataInterface
 from stock_mcp.utils.markdown_formatter import format_list_to_markdown_table
-from stock_mcp.utils.utils import format_timestamp
+from stock_mcp.utils.utils import format_large_number
 
 logger = logging.getLogger(__name__)
 
@@ -25,18 +25,16 @@ def register_real_time_data_tools(app: FastMCP, data_source: FinancialDataInterf
     @app.tool()
     def get_real_time_data(symbol: str) -> str:
         """
-        获取指定股票的实时行情数据，包括价格、涨跌幅、成交量等信息。
+        获取指定股票的实时股票数据，包括价格、涨跌幅、成交量等信息。
 
         Args:
-            symbol: 股票代码，如 300750 或 600519
+            symbol: 股票代码，数字后带上交易所代码，格式如688041.SH
 
         Returns:
             格式化的实时股票数据，以Markdown表格形式展示
 
         Examples:
-            - get_real_time_data("300750")
-            - get_real_time_data("600519")
-            - get_real_time_data("01810")
+            - get_real_time_data("688041.SH")
         """
         try:
             logger.info(f"获取实时股票数据: {symbol}")
@@ -48,61 +46,55 @@ def register_real_time_data_tools(app: FastMCP, data_source: FinancialDataInterf
             if not data:
                 return "未找到数据"
 
-            # 3. 解包并格式化数据
-            quote = data.get("quote", {})
-            market = data.get("market", {})
+            # 3. 解析东方财富返回的数据格式
+            # 提取k线数据
+            klines = data.get("klines", [])
+            if not klines:
+                return "未找到有效数据"
+                
+            # 解析最新的K线数据（通常只有一条）
+            latest_kline = klines[0].split(",")
+            if len(latest_kline) < 11:
+                return "数据格式错误"
+                
+            # 根据东方财富的数据格式解析
+            date = latest_kline[0]
+            open_price = float(latest_kline[1])
+            close_price = float(latest_kline[2])
+            high_price = float(latest_kline[3])
+            low_price = float(latest_kline[4])
+            volume = int(latest_kline[5])
+            amount = float(latest_kline[6])
+            amplitude_pct = float(latest_kline[7])   # 振幅%
+            change_pct = float(latest_kline[8])      # 涨跌幅%
+            change_amount = float(latest_kline[9])   # 涨跌额
+            turnover_rate = float(latest_kline[10])  # 换手率%
             
-            # 提取并格式化关键信息
+            # 计算其他衍生数据
+            pre_close = float(data.get("preKPrice", close_price - change_amount))  # 昨收价
+            
+            # 格式化显示数据
             formatted_data = {
-                "股票名称": quote.get("name", "N/A"),
-                "股票代码": quote.get("symbol", "N/A"),
-                "当前价格": f"{quote.get('current', 'N/A')}元",
-                "涨跌额": f"{quote.get('chg', 'N/A')}元",
-                "涨跌幅": f"{quote.get("percent", "N/A")}%",
-                "开盘价": f"{quote.get('open', 'N/A')}元",
-                "最高价": f"{quote.get('high', 'N/A')}元",
-                "最低价": f"{quote.get('low', 'N/A')}元",
-                "昨收价": f"{quote.get('last_close', 'N/A')}元",
-                "成交量": quote.get("volume", "N/A"),
-                "成交额": f"{quote.get('amount', 'N/A')}元",
-                "换手率": f"{quote.get("turnover_rate", "N/A")}%",
-                "量比": quote.get("volume_ratio", "N/A"),
-                "市值": f"{quote.get('market_capital', 'N/A')}元",
-                "市盈率(TTM)": quote.get("pe_ttm", "N/A"),
-                "市净率": quote.get("pb", "N/A"),
-                "市盈率(静)": quote.get("pe_lyr", "N/A"),
-                "市盈率(动)": quote.get("pe_forecast", "N/A"),
-                "交易状态": market.get("status", "N/A"),
-                "更新时间": format_timestamp(quote.get("timestamp")),
-                "流通股本": quote.get("float_shares", "N/A"),
-                "总股本": quote.get("total_shares", "N/A"),
-                "流通市值": f"{quote.get('float_market_capital', 'N/A')}元",
-                "涨跌停价": f"涨停 {quote.get('limit_up', 'N/A')}元 / 跌停 {quote.get('limit_down', 'N/A')}元",
-                "52周最高": f"{quote.get('high52w', 'N/A')}元",
-                "52周最低": f"{quote.get('low52w', 'N/A')}元",
-                "振幅": f"{quote.get("amplitude", "N/A")}%",
-                "均价": f"{quote.get('avg_price', 'N/A')}元",
-                "年内涨跌幅": f"{quote.get("current_year_percent", "N/A")}%",
-                "每股收益": f"{quote.get('eps', 'N/A')}元",
-                "股息": f"{quote.get('dividend', 'N/A')}元",
-                "股息率": f"{quote.get("dividend_yield", "N/A")}%",
-                "每股净资产": quote.get("navps", "N/A"),
-                "质押率": f"{quote.get("pledge_ratio", "N/A")}%",
-                "是否盈利": quote.get("no_profit_desc", "N/A"),
-                "是否注册制": quote.get("is_registration_desc", "N/A"),
-                "是否VIE架构": quote.get("is_vie_desc", "N/A")
+                "股票名称": data.get("name", "N/A"),
+                "股票代码": data.get("code", "N/A"),
+                "当前价格": f"{close_price:.2f}元",
+                "涨跌额": f"{change_amount:.2f}元",
+                "涨跌幅": f"{change_pct:.2f}%",
+                "开盘价": f"{open_price:.2f}元",
+                "最高价": f"{high_price:.2f}元",
+                "最低价": f"{low_price:.2f}元",
+                "昨收价": f"{pre_close:.2f}元",
+                "成交量": f"{format_large_number(volume)}",
+                "成交额": f"{format_large_number(amount)}元",
+                "振幅": f"{amplitude_pct:.2f}%",
+                "换手率": f"{turnover_rate:.2f}%",
+                "更新时间": date
             }
 
-            # 4. 直接格式化为Markdown，不使用format_dict_to_markdown函数
+            # 4. 直接格式化为Markdown
             result = "**实时股票数据**\n\n"
             for key, value in formatted_data.items():
                 result += f"- **{key}**: {value}\n"
-            
-            # 添加标签信息
-            tags = data.get("tags", [])
-            if tags:
-                tag_descriptions = [tag.get("description", "") for tag in tags]
-                result += f"\n**标签**: {', '.join(tag_descriptions)}"
             
             return result
 
