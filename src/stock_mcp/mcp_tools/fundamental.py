@@ -7,6 +7,7 @@ import logging
 from mcp.server.fastmcp import FastMCP
 from stock_mcp.data_source_interface import FinancialDataInterface
 from stock_mcp.utils.markdown_formatter import format_list_to_markdown_table
+from stock_mcp.utils.utils import format_large_number
 
 logger = logging.getLogger(__name__)
 
@@ -115,15 +116,20 @@ def register_fundamental_tools(app: FastMCP, data_source: FinancialDataInterface
                 }
                 type_desc = type_mapping.get(mainop_type, f'未知分类({mainop_type})')
                 
+                # 使用 format_large_number 格式化大的数值
+                main_income = item.get('MAIN_BUSINESS_INCOME')
+                main_cost = item.get('MAIN_BUSINESS_COST')
+                main_profit = item.get('MAIN_BUSINESS_RPOFIT')
+                
                 formatted_item = {
                     '报告日期': item.get('REPORT_DATE', 'N/A')[:10],  # 只取日期部分
                     '分类依据': type_desc,
                     '主营构成': item.get('ITEM_NAME', 'N/A'),
-                    '主营业务收入': f"{item.get('MAIN_BUSINESS_INCOME', 'N/A'):,.2f} 元" if item.get('MAIN_BUSINESS_INCOME') is not None else 'N/A',
+                    '主营业务收入': f"{format_large_number(main_income)}元" if main_income is not None else 'N/A',
                     '收入占比': f"{item.get('MBI_RATIO', 0) * 100:.2f}%" if item.get('MBI_RATIO') is not None else 'N/A',
-                    '主营业务成本': f"{item.get('MAIN_BUSINESS_COST', 'N/A'):,.2f} 元" if item.get('MAIN_BUSINESS_COST') is not None else 'N/A',
+                    '主营业务成本': f"{format_large_number(main_cost)}元" if main_cost is not None else 'N/A',
                     '成本占比': f"{item.get('MBC_RATIO', 0) * 100:.2f}%" if item.get('MBC_RATIO') is not None else 'N/A',
-                    '主营业务利润': f"{item.get('MAIN_BUSINESS_RPOFIT', 'N/A'):,.2f} 元" if item.get('MAIN_BUSINESS_RPOFIT') is not None else 'N/A',
+                    '主营业务利润': f"{format_large_number(main_profit)}元" if main_profit is not None else 'N/A',
                     '利润占比': f"{item.get('MBR_RATIO', 0) * 100:.2f}%" if item.get('MBR_RATIO') is not None else 'N/A',
                     '毛利率': f"{item.get('GROSS_RPOFIT_RATIO', 0) * 100:.2f}%" if item.get('GROSS_RPOFIT_RATIO') is not None else 'N/A',
                     '排序': item.get('RANK', 'N/A')
