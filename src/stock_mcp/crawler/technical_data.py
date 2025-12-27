@@ -14,6 +14,7 @@ class KlineSpider(EastMoneyBaseSpider):
 
     BASE_URL = "https://push2his.eastmoney.com/api/qt/stock/kline/get"
     TECHNICAL_INDICATORS_URL = "https://datacenter-web.eastmoney.com/api/data/v1/get"
+    PKYD_URL = "https://push2.eastmoney.com/api/qt/pkyd/get"  # 盘口异动API
 
     # K线周期常量
     KLT_1MIN = 1
@@ -107,6 +108,35 @@ class KlineSpider(EastMoneyBaseSpider):
         merged_data = self._merge_technical_data(macd_data, trend_data)
         
         return merged_data
+
+    def get_intraday_changes(self, stock_code: str) -> List[str]:
+        """
+        获取分时图盘口异动数据
+
+        :param stock_code: 股票代码，如"300274.SZ"
+        :return: 盘口异动数据列表
+        """
+        secid = self.format_secid(stock_code)
+
+        params = {
+            "fields": "f1,f2,f3,f4,f5,f6,f7",
+            "secids": secid,
+            "lmt": "40",
+            "ut": "fa5fd1943c7b386f172d6893dbfba10b",
+            "wbp2u": "1849325530509956|0|1|0|web",
+            "cb": "quote_jp0"
+        }
+
+        response = self._get_jsonp(self.PKYD_URL, params)
+
+        if not response or not response.get("data"):
+            raise RuntimeError(f"获取盘口异动数据失败: {response}")
+
+        pkyd_data = response["data"].get("pkyd")
+        if pkyd_data is None:
+            raise RuntimeError(f"响应无 pkyd 字段: {response}")
+
+        return pkyd_data
 
     def _get_macd_data(self, stock_code: str, page_size: int) -> List[Dict[Any, Any]]:
         """

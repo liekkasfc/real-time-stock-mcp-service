@@ -210,3 +210,6 @@ class WebCrawlerDataSource(FinancialDataInterface):
 
     def get_participation_wish(self, stock_code: str) -> Optional[List[Dict[Any, Any]]]:
         return self.smart_review_crawler.get_participation_wish(stock_code)
+
+    def get_intraday_changes(self, stock_code: str) -> Optional[List[Dict[Any, Any]]]:
+        return self.kline_spider.get_intraday_changes(stock_code)

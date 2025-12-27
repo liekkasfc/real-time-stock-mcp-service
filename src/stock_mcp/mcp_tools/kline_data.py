@@ -123,6 +123,74 @@ def format_technical_indicators_data(technical_data: List[Dict]) -> List[Dict]:
     return formatted_data
 
 
+def format_intraday_changes_data(intraday_changes: List[str]) -> List[Dict]:
+    """
+    格式化分时图盘口异动数据
+
+    Args:
+        intraday_changes: 原始分时图盘口异动数据列表
+
+    Returns:
+        格式化后的分时图盘口异动数据列表
+    """
+    formatted_data = []
+    
+    # 事件类型码含义映射
+    event_type_map = {
+        1: "有大买盘",
+        101: "有大卖盘",
+        2: "大笔买入",
+        102: "大笔卖出",
+        201: "封涨停板",
+        301: "封跌停板",
+        202: "打开涨停",
+        302: "打开跌停",
+        203: "高开5日线",
+        303: "低开5日线",
+        204: "60日新高",
+        304: "60日新低",
+        401: "向上缺口",
+        501: "向下缺口",
+        402: "火箭发射",
+        502: "高台跳水",
+        403: "快速反弹",
+        503: "快速下跌",
+        404: "竞价上涨",
+        504: "竞价下跌",
+        405: "60日大幅上涨",
+        505: "60日大幅下跌"
+    }
+    
+    for item in intraday_changes:
+        if not item:
+            continue
+            
+        fields = item.split(',')
+        if len(fields) >= 7:
+            time_str = fields[0]  # 时间
+            event_type_code = int(fields[4])  # 事件类型码
+            value = fields[5]  # 具体数值
+            direction = fields[6]  # 方向标识
+            
+            # 获取事件类型描述
+            event_type_desc = event_type_map.get(event_type_code, f"未知事件({event_type_code})")
+            
+            # 解析方向
+            direction_desc = "买入" if direction == "1" else "卖出" if direction == "2" else "未知"
+            
+
+            formatted_item = {
+                '时间': time_str,
+                '事件类型': event_type_desc,
+                '具体数值': value,
+                '方向': direction_desc
+            }
+            
+            formatted_data.append(formatted_item)
+    
+    return formatted_data
+
+
 def register_kline_tools(app: FastMCP, data_source: FinancialDataInterface):
     """
     注册K线数据相关工具
@@ -255,3 +323,38 @@ def register_kline_tools(app: FastMCP, data_source: FinancialDataInterface):
         except Exception as e:
             logger.error(f"获取技术指标时出错: {e}")
             return f"获取技术指标失败: {str(e)}"
+
+    @app.tool()
+    def get_intraday_changes(
+        stock_code: str,
+    ) -> str:
+        """
+        获取指定股票的分时图盘口异动数据，包括重要交易事件和异常波动信息。
+
+        Args:
+            stock_code: 股票代码，要在数字后加上交易所代码，格式如300750.SZ
+
+        Returns:
+            分时图盘口异动数据的Markdown表格
+
+        Examples:
+            - get_intraday_changes("300750.SZ")
+        """
+        try:
+            # 从数据源获取原始数据
+            raw_intraday_changes = data_source.get_intraday_changes(stock_code)
+
+            if not raw_intraday_changes:
+                return f"未找到股票代码 '{stock_code}' 的分时图盘口异动数据"
+
+            # 格式化数据
+            formatted_data = format_intraday_changes_data(raw_intraday_changes)
+
+            # 生成Markdown表格
+            table = format_list_to_markdown_table(formatted_data)
+
+            return f"## {stock_code}分时图盘口异动数据\n\n{table}"
+
+        except Exception as e:
+            logger.error(f"获取分时图盘口异动时出错: {e}")
+            return f"获取分时图盘口异动失败: {str(e)}"
