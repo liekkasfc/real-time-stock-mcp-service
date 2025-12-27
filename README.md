@@ -80,7 +80,7 @@ https://modelscope.cn/mcp/servers/DannyWong/real-time-stock-mcp
 
 ## 工具模块
 
-项目包含33个MCP工具模块，每个模块提供特定领域的功能：
+项目包含34个MCP工具模块，每个模块提供特定领域的功能：
 
 - `search.py` - 股票搜索和交易日信息
 - `real_time_data.py` - 实时股票行情数据
