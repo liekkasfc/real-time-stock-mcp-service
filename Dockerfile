@@ -25,11 +25,11 @@ RUN chown -R appuser:appgroup /app
 USER appuser
 
 # Expose port (default for FastMCP)
-EXPOSE 8000
+EXPOSE 8001
 
 # Set default environment variables for FastMCP
 ENV FASTMCP_HOST=0.0.0.0
-ENV FASTMCP_PORT=8000
+ENV FASTMCP_PORT=8001
 # Ensure Python path includes src
 ENV PYTHONPATH=/app/src
 

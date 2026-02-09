@@ -72,22 +72,22 @@ https://modelscope.cn/mcp/servers/DannyWong/real-time-stock-mcp
 ```bash
 docker compose up -d
 ```
-服务将在 `http://localhost:8000/sse` 启动。
+service will start at `http://localhost:8001/sse`.
 
 #### 手动构建镜像
 
 ```bash
-# 构建镜像
+# Build image
 docker build -t stock-mcp .
 
-# 运行容器
-docker run -p 8000:8000 stock-mcp
+# Run container
+docker run -p 8001:8001 stock-mcp
 ```
 
 #### SSE 连接测试
 
 ```bash
-curl -N http://localhost:8000/sse
+curl -N http://localhost:8001/sse
 ```
 
 ## 核心设计

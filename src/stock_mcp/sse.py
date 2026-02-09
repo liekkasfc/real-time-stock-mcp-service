@@ -25,6 +25,15 @@ def main():
     app = build_app(active_data_source)
     logger.info("Tools registered")
 
+    # Patch: Ensure port respects env var (FastMCP init defaults to 8000 overriding env)
+    env_port = os.getenv("FASTMCP_PORT")
+    if env_port:
+        try:
+            app.settings.port = int(env_port)
+            logger.info(f"Configured port from env: {app.settings.port}")
+        except ValueError:
+            logger.warning(f"Invalid FASTMCP_PORT: {env_port}, using default")
+
     # 3) Initialize data source
     if active_data_source.initialize():
         logger.info("✅ Data source initialized successfully")
