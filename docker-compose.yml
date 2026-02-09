@@ -1,0 +1,13 @@
+services:
+  mcp-server:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - LOG_LEVEL=INFO
+      - FASTMCP_HOST=0.0.0.0
+      - FASTMCP_PORT=8000
+    volumes:
+      # Optional: Mount source code for development
+      - ./src:/app/src
+    restart: unless-stopped

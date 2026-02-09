@@ -63,6 +63,33 @@ https://modelscope.cn/mcp/servers/DannyWong/real-time-stock-mcp
 - [火遍全网的MCP是什么？怎么用？如何自己开发一个MCP服务？一个视频带你入门！](https://www.bilibili.com/video/BV13R5EzbE6E/?spm_id_from=333.337.search-card.all.click&vd_source=08fc400fe0cfc7eaa723687b764b29f3)
 - [Cherry Studio MCP 使用入门教程：从配置到使用](https://www.bilibili.com/video/BV1bkdAYTEYp/?spm_id_from=333.337.search-card.all.click&vd_source=08fc400fe0cfc7eaa723687b764b29f3)
 
+### 3. Docker 部署 (SSE模式)
+
+本项目支持使用 Docker 部署，并默认启用 SSE 模式。
+
+#### 使用 Docker Compose (推荐)
+
+```bash
+docker compose up -d
+```
+服务将在 `http://localhost:8000/sse` 启动。
+
+#### 手动构建镜像
+
+```bash
+# 构建镜像
+docker build -t stock-mcp .
+
+# 运行容器
+docker run -p 8000:8000 stock-mcp
+```
+
+#### SSE 连接测试
+
+```bash
+curl -N http://localhost:8000/sse
+```
+
 ## 核心设计
 
 本项目采用**依赖注入**设计模式：
