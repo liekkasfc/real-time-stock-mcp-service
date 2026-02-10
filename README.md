@@ -98,6 +98,28 @@ http://<YOUR_LAN_IP>:8001/sse
 ```
 请确保防火墙允许端口 8001 的访问。
 
+## 数据源配置 (New!)
+本服务支持多种数据源，可以通过环境变量进行配置。
+
+### 1. 默认爬虫数据源 (Crawler)
+无需额外配置，默认使用。
+```bash
+DATA_SOURCE=crawler
+```
+
+### 2. Tushare Pro 数据源
+支持使用 Tushare Token 获取数据。
+在 `docker-compose.yml` 中配置：
+```yaml
+ environment:
+   - DATA_SOURCE=tushare
+   - TUSHARE_TOKEN=your_token_here
+   # 可选：配置代理 (注意 Docker 中 localhost 指向容器本身，宿主机代理请用 host.docker.internal)
+   - TUSHARE_PROXY=http://host.docker.internal:7890 
+   # 可选：自定义 Tushare API 地址 (例如私有代理)
+   - TUSHARE_HTTP_URL=http://your-private-proxy/tushare
+```
+
 ## 核心设计
 
 本项目采用**依赖注入**设计模式：
