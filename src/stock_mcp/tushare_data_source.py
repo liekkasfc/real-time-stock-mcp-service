@@ -18,10 +18,11 @@ class TushareDataSource(FinancialDataInterface):
         Initialize Tushare Pro API
         """
         try:
-            self.token = os.getenv("TUSHARE_TOKEN")
-            if not self.token:
-                logger.error("TUSHARE_TOKEN environment variable is not set")
-                return False
+            val_token = os.getenv("TUSHARE_TOKEN", "")
+            if not val_token:
+                 logger.error("TUSHARE_TOKEN environment variable is not set")
+                 return False
+            self.token = val_token.strip()
 
             # Configure proxy if provided
             # Tushare uses requests internally. Setting env vars usually works.
@@ -33,11 +34,16 @@ class TushareDataSource(FinancialDataInterface):
             # but we can set env vars if user provided TUSHARE_PROXY
             proxy = os.getenv("TUSHARE_PROXY")
             if proxy:
+                 proxy = proxy.strip() # Robustly handle user input
                  os.environ["HTTP_PROXY"] = proxy
                  os.environ["HTTPS_PROXY"] = proxy
                  logger.info(f"Configured proxy for Tushare: {proxy}")
             else:
-                 logger.info(f"No explicit Tushare proxy configured. Current env: HTTP_PROXY={os.getenv('HTTP_PROXY')}, HTTPS_PROXY={os.getenv('HTTPS_PROXY')}")
+                 # Log implied proxy for debugging
+                 hp = os.getenv("HTTP_PROXY")
+                 hps = os.getenv("HTTPS_PROXY")
+                 if hp or hps:
+                     logger.info(f"Using system proxy settings - HTTP: {hp}, HTTPS: {hps}")
 
             ts.set_token(self.token)
             self.pro = ts.pro_api()
@@ -45,6 +51,7 @@ class TushareDataSource(FinancialDataInterface):
             # Support custom HTTP URL (e.g. for proxying Pro API calls)
             http_url = os.getenv("TUSHARE_HTTP_URL")
             if http_url and self.pro:
+                http_url = http_url.strip()
                 logger.info(f"Configuring custom Tushare HTTP URL: {http_url}")
                 # Monkeypatch the private variable in DataApi instance
                 # Name mangling: _DataApi__http_url
@@ -75,10 +82,20 @@ class TushareDataSource(FinancialDataInterface):
             # Input symbol e.g. "600519.SH"
             code = symbol.split(".")[0]
             
-            # Use standard tushare interface
-            df = ts.get_realtime_quotes(code)
+            # Use standard tushare interface with error handling
+            try:
+                df = ts.get_realtime_quotes(code)
+            except Exception as e:
+                # Catch urllib/requests errors specifically
+                logger.error(f"Tushare realtime quotes failed for {code}: {e}")
+                # Analyze error for user friendly message
+                if "404" in str(e):
+                    logger.error("HTTP 404 Error: This usually means the Proxy is misconfigured or inaccessible.")
+                    logger.error(f"Current Proxy: {os.environ.get('HTTP_PROXY')}")
+                raise e
             
             if df is None or df.empty:
+                logger.warning(f"No real-time data found for {symbol}")
                 raise NoDataFoundError(f"No real-time data found for {symbol}")
                 
             row = df.iloc[0]
@@ -267,8 +284,14 @@ class TushareDataSource(FinancialDataInterface):
         try:
              # Typical indices
              indices = ['sh', 'sz', 'hs300', 'sz50', 'zxb', 'cyb']
-             df = ts.get_realtime_quotes(indices)
-             
+             try:
+                 df = ts.get_realtime_quotes(indices)
+             except Exception as e:
+                 logger.error(f"Error getting indices from Tushare: {e}")
+                 if "404" in str(e):
+                     logger.error("HTTP 404 Error: This usually means the Proxy is misconfigured or inaccessible.")
+                 return []
+
              result = []
              if df is not None and not df.empty:
                  for _, row in df.iterrows():

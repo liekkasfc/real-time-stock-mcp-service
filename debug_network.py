@@ -31,7 +31,8 @@ def main():
         # Mask token
         if key == 'TUSHARE_TOKEN' and val:
             val = val[:4] + "***" + val[-4:]
-        print(f"  {key}: {val}")
+        # Highlight whitespace issues with single quotes
+        print(f"  {key}: '{val}'")
         
     # 1. Check external internet (Sina)
     # Tushare legacy uses hq.sinajs.cn
