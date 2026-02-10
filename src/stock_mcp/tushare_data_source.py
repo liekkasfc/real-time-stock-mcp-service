@@ -40,6 +40,17 @@ class TushareDataSource(FinancialDataInterface):
             ts.set_token(self.token)
             self.pro = ts.pro_api()
             
+            # Support custom HTTP URL (e.g. for proxying Pro API calls)
+            http_url = os.getenv("TUSHARE_HTTP_URL")
+            if http_url and self.pro:
+                logger.info(f"Configuring custom Tushare HTTP URL: {http_url}")
+                # Monkeypatch the private variable in DataApi instance
+                # Name mangling: _DataApi__http_url
+                try:
+                    self.pro._DataApi__http_url = http_url
+                except AttributeError:
+                    logger.warning("Could not set custom HTTP URL: _DataApi__http_url not found")
+            
             logger.info("Tushare Pro API initialized successfully")
             return True
         except Exception as e:

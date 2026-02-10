@@ -9,7 +9,8 @@ services:
       - FASTMCP_PORT=8001
       - DATA_SOURCE=crawler # Options: crawler, tushare
       - TUSHARE_TOKEN= # Required if DATA_SOURCE=tushare
-      - TUSHARE_PROXY= # Optional: http://user:pass@host:port
+      - TUSHARE_PROXY= # Optional: Standard HTTP proxy
+      - TUSHARE_HTTP_URL= # Optional: Custom Tushare API endpoint (e.g. http://your-proxy/tushare)
     volumes:
       # Optional: Mount source code for development
       - ./src:/app/src
