@@ -36,6 +36,8 @@ class TushareDataSource(FinancialDataInterface):
                  os.environ["HTTP_PROXY"] = proxy
                  os.environ["HTTPS_PROXY"] = proxy
                  logger.info(f"Configured proxy for Tushare: {proxy}")
+            else:
+                 logger.info(f"No explicit Tushare proxy configured. Current env: HTTP_PROXY={os.getenv('HTTP_PROXY')}, HTTPS_PROXY={os.getenv('HTTPS_PROXY')}")
 
             ts.set_token(self.token)
             self.pro = ts.pro_api()
@@ -131,18 +133,45 @@ class TushareDataSource(FinancialDataInterface):
             # Or use Tushare params if possible. ts_code only supports specific code.
             # We filter dataframe.
             
+
+
+            # Check if dataframe is empty or missing columns
+            if df is None or df.empty:
+                logger.warning(f"Stock search returned empty result for keyword: {keyword}")
+                return []
+                
+            required_cols = ['symbol', 'name', 'ts_code', 'market']
+            # Some Tushare APIs might return 'symbol' but not 'ts_code' or vice versa depending on permissions/endpoint
+            # Let's perform a soft check and log warnings, but try to proceed if critical 'symbol' exists
+            
+            missing_cols = [col for col in required_cols if col not in df.columns]
+            if missing_cols:
+                logger.warning(f"Stock search result missing columns: {missing_cols}. Columns found: {df.columns.tolist()}")
+                # If symbol is missing, we can't do much.
+                if 'symbol' not in df.columns:
+                     logger.error("Critical column 'symbol' missing from search result.")
+                     return []
+            
             # Check if keyword matches code or name
-            mask = df['symbol'].str.contains(keyword) | df['name'].str.contains(keyword)
+            # Handle potential non-string values just in case
+            # Ensure columns exist before accessing
+            mask = pd.Series([False] * len(df))
+            if 'symbol' in df.columns:
+                mask |= df['symbol'].astype(str).str.contains(keyword, na=False)
+            if 'name' in df.columns:
+                mask |= df['name'].astype(str).str.contains(keyword, na=False)
+                
             filtered = df[mask].head(10)
             
             result = []
             for _, row in filtered.iterrows():
-                result.append({
-                    "code": row['symbol'],
-                    "name": row['name'],
-                    "ts_code": row['ts_code'],
-                    "market": row['market']
-                })
+                item = {
+                    "code": row.get('symbol', ''),
+                    "name": row.get('name', ''),
+                    "ts_code": row.get('ts_code', ''),
+                    "market": row.get('market', '')
+                }
+                result.append(item)
             return result
             
         except Exception as e:
