@@ -18,7 +18,7 @@ def main():
     logger = logging.getLogger(__name__)
 
     # 1) Dependency Injection
-    data_source_type = os.getenv("DATA_SOURCE", "crawler").lower()
+    data_source_type = os.getenv("DATA_SOURCE", "hybrid").lower()
     
     if data_source_type == "tushare":
         try:
@@ -26,11 +26,30 @@ def main():
             active_data_source = TushareDataSource()
         except ImportError:
             logger.error("Failed to import TushareDataSource. Make sure tushare is installed.")
-            # Fallback to crawler if tushare fails to import? Or exit?
-            # Better to fail loudly if user requested tushare
             sys.exit(1)
-    else:
+    elif data_source_type == "crawler":
         active_data_source = WebCrawlerDataSource()
+    else: # Default to hybrid
+        try:
+            from stock_mcp.hybrid_data_source import HybridDataSource
+            from stock_mcp.tushare_data_source import TushareDataSource
+            
+            # Primary: Crawler
+            crawler = WebCrawlerDataSource()
+            
+            # Secondary: Tushare
+            tushare = None
+            try:
+                tushare = TushareDataSource()
+            except ImportError:
+                logger.warning("Tushare not available for hybrid mode fallback.")
+            
+            active_data_source = HybridDataSource(primary=crawler, secondary=tushare)
+            logger.info("Using HybridDataSource (Crawler + Tushare fallback)")
+            
+        except Exception as e:
+            logger.error(f"Failed to initialize HybridDataSource: {e}")
+            sys.exit(1)
         
     logger.info("Data source: %s", active_data_source.__class__.__name__)
 
