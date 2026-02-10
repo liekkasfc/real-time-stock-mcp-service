@@ -9,6 +9,7 @@ dependencies = [
   "requests>=2.32.0",
   "pandas>=2.2.0",
   "python-dateutil>=2.9.0",
+  "tushare>=1.2.89",
 ]
 
 # 给托管/本地一个稳定的命令入口：执行 stock-mcp 就能跑

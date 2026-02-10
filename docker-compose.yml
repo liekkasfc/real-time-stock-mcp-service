@@ -7,6 +7,9 @@ services:
       - LOG_LEVEL=INFO
       - FASTMCP_HOST=0.0.0.0
       - FASTMCP_PORT=8001
+      - DATA_SOURCE=crawler # Options: crawler, tushare
+      - TUSHARE_TOKEN= # Required if DATA_SOURCE=tushare
+      - TUSHARE_PROXY= # Optional: http://user:pass@host:port
     volumes:
       # Optional: Mount source code for development
       - ./src:/app/src

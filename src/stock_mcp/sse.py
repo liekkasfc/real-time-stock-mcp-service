@@ -18,7 +18,20 @@ def main():
     logger = logging.getLogger(__name__)
 
     # 1) Dependency Injection
-    active_data_source = WebCrawlerDataSource()
+    data_source_type = os.getenv("DATA_SOURCE", "crawler").lower()
+    
+    if data_source_type == "tushare":
+        try:
+            from stock_mcp.tushare_data_source import TushareDataSource
+            active_data_source = TushareDataSource()
+        except ImportError:
+            logger.error("Failed to import TushareDataSource. Make sure tushare is installed.")
+            # Fallback to crawler if tushare fails to import? Or exit?
+            # Better to fail loudly if user requested tushare
+            sys.exit(1)
+    else:
+        active_data_source = WebCrawlerDataSource()
+        
     logger.info("Data source: %s", active_data_source.__class__.__name__)
 
     # 2) Build app
