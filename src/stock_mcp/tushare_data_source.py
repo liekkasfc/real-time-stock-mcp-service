@@ -262,7 +262,8 @@ class TushareDataSource(FinancialDataInterface):
 
                  # CSV format: date,open,close,high,low,volume,amount,amplitude,change_percent,change_amount,turnover_rate
                  # Note: order matches parse_kline_data fields indices
-                 line = f"{date_str},{open_val},{close_val},{high_val},{low_val},{vol_val},{amount_val},{amplitude},{pct_chg},{change},{turnover}"
+                 # Ensure volume is integer (Tushare returns float)
+                 line = f"{date_str},{open_val},{close_val},{high_val},{low_val},{int(vol_val)},{amount_val},{amplitude},{pct_chg},{change},{turnover}"
                  result.append(line)
                  
              return result
