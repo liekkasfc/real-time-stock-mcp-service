@@ -9,8 +9,8 @@ services:
       - FASTMCP_PORT=8001
       - DATA_SOURCE=crawler # Options: crawler, tushare
       - TUSHARE_TOKEN= # Required if DATA_SOURCE=tushare
-      - TUSHARE_PROXY= # Optional: Standard HTTP proxy
-      - TUSHARE_HTTP_URL= # Optional: Custom Tushare API endpoint (e.g. http://your-proxy/tushare)
+      - TUSHARE_PROXY=http://host.docker.internal:1082 # Example: http://host.docker.internal:1082 for local proxy
+      - TUSHARE_HTTP_URL=http://47.109.97.125:8080/tushare # Optional: Custom Tushare API endpoint (e.g. http://your-proxy/tushare)
     volumes:
       # Optional: Mount source code for development
       - ./src:/app/src
