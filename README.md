@@ -118,6 +118,16 @@ DATA_SOURCE=crawler
    - TUSHARE_PROXY=http://host.docker.internal:7890 
    # 可选：自定义 Tushare API 地址 (例如私有代理)
    - TUSHARE_HTTP_URL=http://your-private-proxy/tushare
+   ```
+
+### 3. 混合模式 (Hybrid Data Source) - 推荐
+结合爬虫和 Tushare 数据源，提供更稳定的服务。
+- **默认模式**: 当不指定 `DATA_SOURCE` 或设置为 `hybrid` 时启用。
+- **机制**: 优先使用爬虫获取实时/K线数据；如果失败（如遇到反爬或网络问题），自动降级使用 Tushare 数据源。
+- **配置**: 需要配置 Tushare Token 以便降级时使用。
+```bash
+DATA_SOURCE=hybrid
+TUSHARE_TOKEN=your_token_here
 ```
 
 ## 核心设计

@@ -67,7 +67,18 @@ class HybridDataSource(FinancialDataInterface):
         return self.primary.get_stock_search(keyword)
 
     def get_historical_k_data(self, stock_code: str, start_date: str, end_date: str, frequency: str = "d") -> List[Dict]:
-        return self.primary.get_historical_k_data(stock_code, start_date, end_date, frequency)
+        try:
+            return self.primary.get_historical_k_data(stock_code, start_date, end_date, frequency)
+        except Exception as e:
+            logger.warning(f"Primary source failed for K-Line data: {e}")
+            if self.secondary:
+                logger.info("Attempting to switch to secondary source (Tushare) for K-Line...")
+                try:
+                    return self.secondary.get_historical_k_data(stock_code, start_date, end_date, frequency)
+                except Exception as e2:
+                     logger.error(f"Secondary source also failed for K-Line: {e2}")
+                     raise e2
+            raise e
 
     def get_technical_indicators(self, stock_code: str, page_size: int = 30) -> List[Dict]:
         return self.primary.get_technical_indicators(stock_code, page_size)

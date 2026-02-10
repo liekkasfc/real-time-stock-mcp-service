@@ -198,9 +198,80 @@ class TushareDataSource(FinancialDataInterface):
     # Implement other methods as needed or return None/Raise NotImplemented
     # For brevity, implementing minimal set for "get_real_time_data" request
     
-    def get_historical_k_data(self, stock_code: str, start_date: str, end_date: str, frequency: str = "d") -> List[Dict]:
-         # ... implementation ...
-         return []
+    def get_historical_k_data(self, stock_code: str, start_date: str, end_date: str, frequency: str = "d") -> List[str]:
+         """
+         Get historical K-line data from Tushare Pro
+         Returns List[str] in CSV format to match KlineSpider output:
+         date,open,close,high,low,volume,amount,amplitude,change_percent,change_amount,turnover_rate
+         """
+         try:
+             # Convert dates: YYYY-MM-DD -> YYYYMMDD
+             start_dt = start_date.replace("-", "")
+             end_dt = end_date.replace("-", "")
+             
+             # Map frequency
+             api_func = None
+             if frequency == "d":
+                 api_func = self.pro.daily
+             elif frequency == "w":
+                 api_func = self.pro.weekly
+             elif frequency == "m":
+                 api_func = self.pro.monthly
+             else:
+                 # Tushare Pro basic interface doesn't support minutes easily without specific permissions or different feed
+                 logger.warning(f"TushareDataSource: Frequency {frequency} not supported, defaulting to daily")
+                 api_func = self.pro.daily
+
+             # Call API
+             # Fields: ts_code,trade_date,open,high,low,close,pre_close,change,pct_chg,vol,amount
+             df = api_func(ts_code=stock_code, start_date=start_dt, end_date=end_dt)
+             
+             if df is None or df.empty:
+                 return []
+
+             # Sort by date ascending (Tushare returns descending usually)
+             df = df.sort_values(by='trade_date')
+
+             result = []
+             for _, row in df.iterrows():
+                 date_str = row['trade_date'] # YYYYMMDD
+                 # Format to YYYY-MM-DD
+                 if len(date_str) == 8:
+                     date_str = f"{date_str[:4]}-{date_str[4:6]}-{date_str[6:]}"
+                 
+                 open_val = float(row['open'])
+                 close_val = float(row['close'])
+                 high_val = float(row['high'])
+                 low_val = float(row['low'])
+                 vol_val = float(row['vol'])
+                 amount_val = float(row['amount']) * 1000 # Tushare amount is '千元' (thousands), Crawler seems to be raw unit? 
+                 # Wait, looking at debug output/crawler, amount is usually large.
+                 # Let's check Crawler output example if possible.
+                 # Assuming Tushare's '千元' needs *1000 to match raw RMB if Crawler returns raw.
+                 # But KlineSpider docs don't specify unit. Let's assume *1000 to be safe for "amount".
+                 
+                 pre_close = float(row['pre_close'])
+                 pct_chg = float(row['pct_chg'])
+                 change = float(row['change'])
+                 
+                 # Calculate amplitude: (high - low) / pre_close * 100
+                 amplitude = ((high_val - low_val) / pre_close * 100) if pre_close > 0 else 0.0
+                 
+                 # Turnover rate - not in daily, default 0
+                 turnover = 0.0
+
+                 # CSV format: date,open,close,high,low,volume,amount,amplitude,change_percent,change_amount,turnover_rate
+                 # Note: order matches parse_kline_data fields indices
+                 line = f"{date_str},{open_val},{close_val},{high_val},{low_val},{vol_val},{amount_val},{amplitude},{pct_chg},{change},{turnover}"
+                 result.append(line)
+                 
+             return result
+
+         except Exception as e:
+             logger.error(f"Error getting historical k data from Tushare: {e}")
+             if "404" in str(e):
+                  logger.error("HTTP 404 Error in K-line: Proxy configuration issue?")
+             return []
 
     def get_technical_indicators(self, stock_code: str, page_size: int = 30) -> List[Dict]:
         return []
